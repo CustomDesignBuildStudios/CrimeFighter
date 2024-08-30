@@ -1,12 +1,14 @@
 
-const express = require('express');
+import { mysqlPassword,mysqlUser } from './env.js';
+import express from 'express';
+import cors from 'cors';
+import oracledb from 'oracledb';
+
 const app = express();
-const cors = require('cors');
-const oracledb = require('oracledb');
+
 
 oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
 
-const mypw = "yjjJvN87Z4En5EmSchBaJl6O"  // set mypw to the hr schema password
 
 
 
@@ -16,8 +18,8 @@ app.use(cors())
 
 app.get('/', async (req, res) => {
     const connection = await oracledb.getConnection ({
-        user          : "mtermotto",
-        password      : mypw,
+        user          : mysqlUser,
+        password      : mysqlPassword,
         connectString : "oracle.cise.ufl.edu/orcl"
     });
 
