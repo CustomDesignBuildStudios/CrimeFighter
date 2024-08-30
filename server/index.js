@@ -21,16 +21,7 @@ app.get('/', async (req, res) => {
         connectString : "oracle.cise.ufl.edu/orcl"
     });
 
-//     console.log(connection);
-//     const result = await connection.execute(
-//             `CREATE TABLE Persons (
-//     PersonID int,
-//     LastName varchar(255),
-//     FirstName varchar(255),
-//     Address varchar(255),
-//     City varchar(255)
-// )`
-//     );
+
 
     const result1 = await connection.execute(
         `
