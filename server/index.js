@@ -24,21 +24,30 @@ app.get('/', async (req, res) => {
     });
 
 
+//     const createTableExample = await connection.execute(
+//     `CREATE TABLE Persons (
+//     PersonID int,
+//     LastName varchar(255),
+//     FirstName varchar(255),
+//     Address varchar(255),
+//     City varchar(255)
+//     )`
+//     );
 
-    const result1 = await connection.execute(
-        `
-        INSERT INTO Persons (PersonID, LastName, FirstName, Address, City)
-VALUES (1, 'Erichsen', 'Stavanger', '555 sea lane', 'Norway')`
-);
+    // const insertExample = await connection.execute(
+    //     `
+    //     INSERT INTO Persons (PersonID, LastName, FirstName, Address, City)
+    //     VALUES (1, 'Erichsen', 'Stavanger', '555 sea lane', 'Norway')`
+    //     );
 
 
-const result2 = await connection.execute(
-    `
-    SELECT * FROM Persons`
-);
+    // const selectExample = await connection.execute(
+    //     `
+    //     SELECT * FROM Persons`
+    //     );
 
 
-    res.send(result2)
+    res.send("Results")
 })
 
 app.listen(8080, () => {
