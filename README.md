@@ -4,6 +4,15 @@ CD into both folders and install the packages
 
 ### `npm install`
 
+
+CD into the server folder and create a file "env.js" in the server directory
+And put your username and password like this:
+
+export const mysqlPassword = "********"  
+export const mysqlUser = "********"  
+
+
+
 To Run Server cd into folder and run
 
 ### `node index.js`
