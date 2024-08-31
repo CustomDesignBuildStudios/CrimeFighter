@@ -54,7 +54,7 @@ app.get('/', async (req, res) => {
 
     await connection.close();
 
-    res.send(selectExample)
+    res.send("Put return data var here")
 })
 
 app.listen(8080, () => {
