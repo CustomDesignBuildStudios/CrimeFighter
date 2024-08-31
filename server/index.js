@@ -5,16 +5,20 @@ import cors from 'cors';
 import oracledb from 'oracledb';
 
 const app = express();
+// const crimeData = require('./data.json');
 
 
 oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
-
+oracledb.autoCommit = true;
 
 
 
 
   
 app.use(cors())
+
+
+
 
 app.get('/', async (req, res) => {
     const connection = await oracledb.getConnection ({
@@ -40,14 +44,17 @@ app.get('/', async (req, res) => {
     //     VALUES (1, 'Erichsen', 'Stavanger', '555 sea lane', 'Norway')`
     //     );
 
+    // console.log(insertExample);
+
 
     // const selectExample = await connection.execute(
     //     `
     //     SELECT * FROM Persons`
     //     );
 
+    await connection.close();
 
-    res.send("Results")
+    res.send(selectExample)
 })
 
 app.listen(8080, () => {
