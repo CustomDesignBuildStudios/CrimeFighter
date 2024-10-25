@@ -21,6 +21,7 @@ app.use(cors())
 
 
 app.get('/', async (req, res) => {
+<<<<<<< HEAD
     let connection;
     try {
         // Establish connection
@@ -50,6 +51,15 @@ app.get('/', async (req, res) => {
             }
         }
     }
+=======
+    const connection = await oracledb.getConnection ({
+        user          : mysqlUser,
+        password      : mysqlPassword,
+        connectString : "oracle.cise.ufl.edu/orcl"
+    });
+
+
+>>>>>>> 91b74bbd7bd1e29c5168af04ed3ade440de2fd3e
 //     const createTableExample = await connection.execute(
 //     `CREATE TABLE Persons (
 //     PersonID int,
@@ -70,12 +80,22 @@ app.get('/', async (req, res) => {
 
 
     // const selectExample = await connection.execute(
+<<<<<<< HEAD
     //     `SELECT * FROM CF_Crime ORDER BY VictAge ASC FETCH FIRST 5 ROWS ONLY;`
     //     );
 
     // await connection.close();
 
     // res.send("Put return data var here")
+=======
+    //     `
+    //     SELECT * FROM Persons`
+    //     );
+
+    await connection.close();
+
+    res.send("Put return data var here")
+>>>>>>> 91b74bbd7bd1e29c5168af04ed3ade440de2fd3e
 })
 
 app.listen(8080, () => {
