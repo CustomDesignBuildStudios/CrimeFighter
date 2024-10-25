@@ -21,13 +21,35 @@ app.use(cors())
 
 
 app.get('/', async (req, res) => {
-    const connection = await oracledb.getConnection ({
-        user          : mysqlUser,
-        password      : mysqlPassword,
-        connectString : "oracle.cise.ufl.edu/orcl"
-    });
+    let connection;
+    try {
+        // Establish connection
+        connection = await oracledb.getConnection({
+            user: mysqlUser,
+            password: mysqlPassword,
+            connectString: "oracle.cise.ufl.edu/orcl"
+        });
 
+        // Execute the SELECT statement
+        const result = await connection.execute(
+            `SELECT * FROM CF_Crime ORDER BY VictAge ASC FETCH FIRST 5 ROWS ONLY`
+        );
 
+        // Send the query result rows as a response
+        res.json(result.rows);  // `rows` contains the query results as an array of objects
+
+    } catch (error) {
+        console.error("Error executing query:", error);
+        res.status(500).send("Error executing query");
+    } finally {
+        if (connection) {
+            try {
+                await connection.close();
+            } catch (err) {
+                console.error("Error closing connection:", err);
+            }
+        }
+    }
 //     const createTableExample = await connection.execute(
 //     `CREATE TABLE Persons (
 //     PersonID int,
@@ -48,13 +70,12 @@ app.get('/', async (req, res) => {
 
 
     // const selectExample = await connection.execute(
-    //     `
-    //     SELECT * FROM Persons`
+    //     `SELECT * FROM CF_Crime ORDER BY VictAge ASC FETCH FIRST 5 ROWS ONLY;`
     //     );
 
-    await connection.close();
+    // await connection.close();
 
-    res.send("Put return data var here")
+    // res.send("Put return data var here")
 })
 
 app.listen(8080, () => {
