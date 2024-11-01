@@ -5,6 +5,10 @@ import { useState } from "react";
 import { InputField } from "../Components/InputField";
 
 function Register() {
+  {
+    /*Add logic to handle a valid/invalid registration of user. Look at login and other project for more help */
+  }
+
   return (
     <div className="flex flex-col items-center justify-center h-screen">
       <h1 className="mb-4 text-4xl font-bold">Register</h1>

@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import logo from "../logo.svg";
+import LAPicture from "../Pictures/LAPicture.jpg";
 import axios from "axios";
-//import "./AboutPage.css";
 import CanvasJSReact from "@canvasjs/react-charts";
 var CanvasJS = CanvasJSReact.CanvasJS;
 var CanvasJSChart = CanvasJSReact.CanvasJSChart;
@@ -10,57 +9,43 @@ var CanvasJSChart = CanvasJSReact.CanvasJSChart;
 function AboutPage() {
   return (
     <div className="flex flex-col items-center min-h-screen bg-gray-100">
-      <header className="w-full p-4 bg-gray-200 shadow-md">
-        <div className="container flex items-center justify-between mx-auto">
-          <img src={logo} alt="LA Crime Tracker Logo" className="h-8" />
-          <h1 className="text-xl font-semibold text-gray-700">
-            LA Crime Tracker
-          </h1>
-          <nav className="flex gap-4 text-gray-700">
-            <a href="#" className="hover:text-gray-900">
-              Home
-            </a>
-            <a href="#" className="hover:text-gray-900">
-              Data
-            </a>
-            <a href="#" className="hover:text-gray-900">
-              My Reports
-            </a>
-            <a href="#" className="hover:text-gray-900">
-              Profile
-            </a>
-          </nav>
-        </div>
-      </header>
-
       <main className="container p-4 mx-auto my-8 bg-white rounded-lg shadow-md">
         <section className="mb-6 text-center">
-          <h2 className="text-2xl font-semibold text-gray-800">
+          <h1 className="text-2xl font-semibold text-gray-800">
             About Crime Tracker
-          </h2>
+          </h1>
           <p className="mt-2 text-gray-600">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-            aliquip ex ea commodo consequat.
+            Crime is one of the most critical and widely discussed topics in
+            this country. With many regions around the world affected by high
+            crime rates, the need for a comprehensive tool to track and monitor
+            crime is essential. Keeping yourself, family, and friends safe is of
+            utmost importance, particularly in high crime areas like metro Los
+            Angeles. LA is one the most popular tourist destinations in not only
+            the US, but the world, making it a dynamic hub for all types of
+            people, even criminals. This application will gather information
+            about crimes in LA to help anyone monitor and track crime by seeing
+            trends, statistics, and patterns. Whether you are a civilian looking
+            for high crime areas to avoid, or a law enforcement officer updating
+            the status of an ongoing case, our app can help people make informed
+            decisions on travel, leisure, or work.
           </p>
         </section>
 
         <section className="text-center text-gray-600">
-          {/* Make LOGIN / REGISTER clickable */}
+          {/* Add Login here to where if user logged in, then this button does not appear */}
           <Link
             to="/login"
             className="font-medium text-blue-600 hover:underline"
           >
-            LOGIN / REGISTER TO ADD CRIME
+            LOGIN / REGISTER TO ADD/VIEW CRIMES
           </Link>
         </section>
 
         <div className="mt-6">
-          {/* Insert your map component here */}
+          {/* Below, add a picture to go along with the app*/}
           <img
-            src="https://via.placeholder.com/800x400"
-            alt="Map of Los Angeles"
+            src={LAPicture}
+            alt="Los Angeles"
             className="w-full rounded-lg shadow-md"
           />
         </div>
