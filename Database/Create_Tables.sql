@@ -39,6 +39,8 @@ CREATE TABLE cf_crime(
 
 CREATE TABLE cf_account(
     AccountID NUMBER,
+    Email VARCHAR2(50) NOT NULL,
+    Password VARCHAR2(50) NOT NULL,
     FirstName VARCHAR2(50) NOT NULL,
     LastName VARCHAR2(50) NOT NULL,
     Phone VARCHAR2(30),
@@ -118,3 +120,28 @@ CREATE SEQUENCE cf_policeInsert START WITH 10000 INCREMENT BY 1;
 
 
 
+CREATE TABLE cf_premistype(
+    id NUMBER NOT NULL,
+    type VARCHAR2(5) NOT NULL,
+    value VARCHAR2(50) NOT NULL,
+    PRIMARY KEY (id)
+);
+CREATE SEQUENCE cf_premisTypeInsert START WITH 100 INCREMENT BY 1;
+
+
+CREATE TABLE cf_racetype(
+    id NUMBER NOT NULL,
+    type VARCHAR2(1) NOT NULL,
+    value VARCHAR2(50) NOT NULL,
+    PRIMARY KEY (id)
+);
+CREATE SEQUENCE cf_raceTypeInsert START WITH 100 INCREMENT BY 1;
+
+
+CREATE TABLE cf_crimetype(
+    id NUMBER NOT NULL,
+    type VARCHAR2(5) NOT NULL,
+    value VARCHAR2(200) NOT NULL,
+    PRIMARY KEY (id)
+);
+CREATE SEQUENCE cf_crimeTypeInsert START WITH 100 INCREMENT BY 1;

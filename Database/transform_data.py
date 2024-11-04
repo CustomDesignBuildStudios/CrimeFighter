@@ -34,6 +34,11 @@ def formatDateTime(date, time):
 inputfile = 'Crime_Data_from_2020_to_Present.csv'
 outputfile = 'Input_Data.sql'
 
+
+premiseTypes = {}
+crimeTypes = {}
+
+
 # Open CSV file and SQL file for writing
 with open(inputfile, mode='r', newline='', encoding='utf-8') as csvfile, open(outputfile, mode='w', encoding='utf-8') as sqlfile:
     
@@ -52,6 +57,10 @@ with open(inputfile, mode='r', newline='', encoding='utf-8') as csvfile, open(ou
     for row in csvreader:
         dateTimeOcc = formatDateTime(row['DATE OCC'] , row['TIME OCC'])
 
+
+        crimeTypes[row['Crm Cd']] = row['Crm Cd Desc']
+        premiseTypes[row['Premis Cd']] = row['Premis Desc']
+
         # This uses the DictReader function for each attribute. Makes it 100x easier.
         insert_command = (
                 f"INSERT INTO CF_Crime VALUES ("
@@ -67,4 +76,22 @@ with open(inputfile, mode='r', newline='', encoding='utf-8') as csvfile, open(ou
             )
         # Write the SQL command to the output file
         sqlfile.write(insert_command)
+
+    for key, value in premiseTypes.items():
+        if(value == '' or key == ''): continue
+        insert_command = (
+                f"INSERT INTO cf_premistype VALUES (cf_premisTypeInsert.NEXTVAL,"
+                f"{turnSingleToDoubleQutoes(key)}, '{turnSingleToDoubleQutoes(value)}');\n"
+            )
+        sqlfile.write(insert_command)
+
+
+    for key, value in crimeTypes.items():
+        if(value == '' or key == ''): continue
+        insert_command = (
+                f"INSERT INTO cf_crimetype VALUES (cf_crimeTypeInsert.NEXTVAL,"
+                f"{turnSingleToDoubleQutoes(key)}, '{turnSingleToDoubleQutoes(value)}');\n"
+            )
+        sqlfile.write(insert_command)
+
     sqlfile.write("COMMIT;")
