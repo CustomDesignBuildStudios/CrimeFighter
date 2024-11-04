@@ -22,7 +22,8 @@ function Login() {
       setIsLoading(true);
 
       axios.post('http://localhost:8080/login',{password:password,email:email}).then((results) => {
-        if(results != false){
+        console.log(results);
+        if(results.data != false){
           navigate('/myprofile');
         }else{
 

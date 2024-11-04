@@ -22,6 +22,8 @@ function Register() {
       setIsLoading(true);
 
       axios.post('http://localhost:8080/register',{password:password,email:email,firstName:firstName,lastName:lastName}).then((results) => {
+        console.log(results);
+
         if(results != false){
           navigate('/myprofile');
         }else{
