@@ -39,6 +39,8 @@ CREATE TABLE cf_crime(
 
 CREATE TABLE cf_account(
     AccountID NUMBER,
+    Email VARCHAR2(50) NOT NULL,
+    Password VARCHAR2(50) NOT NULL,
     FirstName VARCHAR2(50) NOT NULL,
     LastName VARCHAR2(50) NOT NULL,
     Phone VARCHAR2(30),
