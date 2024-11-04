@@ -1,10 +1,15 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEyeSlash, faEye } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
+import axios from 'axios';
 import { useState } from "react";
 import { InputField } from "../Components/InputField";
+import { useNavigate } from 'react-router-dom';
+
+
 
 function Login() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -15,7 +20,17 @@ function Login() {
     if (!email || !password) return;
     try {
       setIsLoading(true);
-      // Insert the try-catch-finally logic for handling login info in Oracle DB
+
+      axios.post('http://localhost:8080/login',{password:password,email:email}).then((results) => {
+        if(results != false){
+          navigate('/myprofile');
+        }else{
+
+        }
+      
+      });
+
+
     } catch (error) {
       alert("ERROR: " + error.message);
     } finally {
