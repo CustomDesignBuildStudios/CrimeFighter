@@ -1,32 +1,89 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEyeSlash, faEye } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
+import axios from "axios";
 import { useState } from "react";
 import { InputField } from "../Components/InputField";
+import { useNavigate } from "react-router-dom";
 
 function Register() {
-  {
-    /*Add logic to handle a valid/invalid registration of user. Look at login and other project for more help */
+  const navigate = useNavigate();
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  async function handleLogin(event) {
+    event.preventDefault();
+    if (!email || !password || !firstName || !lastName) return;
+    try {
+      setIsLoading(true);
+
+      axios
+        .post("http://localhost:8080/register", {
+          password: password,
+          email: email,
+          firstName: firstName,
+          lastName: lastName,
+        })
+        .then((results) => {
+          console.log(results);
+
+          if (results.data != false) {
+            navigate("/myprofile");
+          } else {
+          }
+        });
+    } catch (error) {
+      alert("ERROR: " + error.message);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
     <div className="flex flex-col items-center justify-center h-screen">
       <h1 className="mb-4 text-4xl font-bold">Register</h1>
-      <form className="w-1/3 px-8 pt-6 pb-8 mb-4 bg-white rounded shadow-md">
+      <form
+        className="w-1/3 px-8 pt-6 pb-8 mb-4 bg-white rounded shadow-md"
+        onSubmit={handleLogin}
+      >
         <div className="mb-4">
           <label
             className="block mb-2 text-sm font-bold text-gray-700"
-            htmlFor="username"
+            htmlFor="firstName"
           >
-            Username
+            First Name
           </label>
-          <input
-            className="w-full px-3 py-2 leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
-            id="username"
+          <InputField
+            id="firstName"
+            labelName="First Name"
             type="text"
-            placeholder="Enter your username"
+            placeholder="First Name"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
           />
         </div>
+
+        <div className="mb-4">
+          <label
+            className="block mb-2 text-sm font-bold text-gray-700"
+            htmlFor="lastName"
+          >
+            Last Name
+          </label>
+          <InputField
+            id="lastName"
+            labelName="Last Name"
+            type="text"
+            placeholder="Last Name"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+          />
+        </div>
+
         <div className="mb-4">
           <label
             className="block mb-2 text-sm font-bold text-gray-700"
@@ -34,11 +91,13 @@ function Register() {
           >
             Email
           </label>
-          <input
-            className="w-full px-3 py-2 leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
+          <InputField
             id="email"
+            labelName="Email Address"
             type="email"
-            placeholder="Enter your email"
+            placeholder="Your-email@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
         </div>
         <div className="mb-4">
@@ -48,19 +107,29 @@ function Register() {
           >
             Password
           </label>
-          <input
-            className="w-full px-3 py-2 leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
+          <InputField
             id="password"
-            type="password"
-            placeholder="Enter your password"
-          />
+            labelName="Password"
+            type={isPasswordVisible ? "text" : "password"}
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          >
+            <FontAwesomeIcon
+              className="absolute right-0 p-1 cursor-pointer"
+              icon={isPasswordVisible ? faEye : faEyeSlash}
+              onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+            />
+          </InputField>
         </div>
+
         <div className="flex items-center justify-between">
           <button
-            className="px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700 focus:outline-none focus:shadow-outline"
             type="submit"
+            className="px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700 focus:outline-none focus:shadow-outline"
+            disabled={isLoading}
           >
-            Register
+            {isLoading ? "Loading..." : "Register"}
           </button>
           <div className="flex items-center ml-4">
             <span className="text-sm text-gray-600">

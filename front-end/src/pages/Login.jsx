@@ -21,33 +21,17 @@ function Login() {
     try {
       setIsLoading(true);
 
-      axios
-        .post("http://localhost:8080/login", {
-          password: password,
-          email: email,
-        })
-        .then((results) => {
-          console.log(results);
-          if (results.data != false) {
-            navigate("/myprofile");
-          } else {
-            alert(
-              "Error: Either the email or password is incorrect/not a user."
-            );
-          }
-        });
+      const response = await axios.post("http://localhost:8080/login", {
+        email,
+        password,
+      });
 
-      // const response = await axios.post("http://localhost:8080/login", {
-      //   email,
-      //   password,
-      // });
-
-      // if (response.data) {
-      //   login(response.data); // Set user data in context
-      //   navigate("/myprofile");
-      // } else {
-      //   alert("Error: Either the email or password is incorrect/not a user.");
-      // }
+      if (response.data) {
+        login(response.data); // Set user data in context
+        navigate("/myprofile");
+      } else {
+        alert("Error: Either the email or password is incorrect/not a user.");
+      }
     } catch (error) {
       alert("ERROR: " + error.message);
     } finally {
