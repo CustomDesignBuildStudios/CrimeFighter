@@ -1,10 +1,15 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEyeSlash, faEye } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
+import axios from "axios";
 import { useState } from "react";
 import { InputField } from "../Components/InputField";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../AuthContext";
 
 function Login() {
+  const navigate = useNavigate();
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -15,7 +20,34 @@ function Login() {
     if (!email || !password) return;
     try {
       setIsLoading(true);
-      // Insert the try-catch-finally logic for handling login info in Oracle DB
+
+      axios
+        .post("http://localhost:8080/login", {
+          password: password,
+          email: email,
+        })
+        .then((results) => {
+          console.log(results);
+          if (results.data != false) {
+            navigate("/myprofile");
+          } else {
+            alert(
+              "Error: Either the email or password is incorrect/not a user."
+            );
+          }
+        });
+
+      // const response = await axios.post("http://localhost:8080/login", {
+      //   email,
+      //   password,
+      // });
+
+      // if (response.data) {
+      //   login(response.data); // Set user data in context
+      //   navigate("/myprofile");
+      // } else {
+      //   alert("Error: Either the email or password is incorrect/not a user.");
+      // }
     } catch (error) {
       alert("ERROR: " + error.message);
     } finally {
