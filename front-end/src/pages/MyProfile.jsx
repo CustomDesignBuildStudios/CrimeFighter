@@ -1,35 +1,60 @@
 import { useState, useEffect } from "react";
+import { useAuth } from "../AuthContext.jsx";
 
 function MyProfile() {
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
-  const [biography, setBiography] = useState("");
+  const { user } = useAuth();
+  console.log("user object in myprofile page: ", user);
+  const [firstname, setFirstName] = useState(
+    localStorage.getItem("firstname") || (user ? user.firstName : "")
+  );
+  const [lastname, setLastName] = useState(
+    localStorage.getItem("lastname") || (user ? user.lastName : "")
+  );
+  const [phone, setPhone] = useState(
+    localStorage.getItem("phone") || user?.phone || ""
+  );
+  const [email, setEmail] = useState(
+    localStorage.getItem("email") || user?.email || ""
+  );
+  const [biography, setBiography] = useState(
+    localStorage.getItem("biography") || user?.bio || ""
+  );
 
   // Simulated user data fetch (replace with your data fetching logic)
   useEffect(() => {
-    const fetchUserData = () => {
-      // This should be replaced with the actual fetching logic from your database/API
-      const userData = {
-        name: "John Doe",
-        phone: "123-456-7890",
-        email: "john.doe@example.com",
-        Biography: "pull bio info from database",
-      };
+    if (user) {
+      setFirstName(user.firstName || "");
+      setLastName(user.lastName || "");
+      setPhone(user.phone || "");
+      setEmail(user.email);
+      setBiography(user.bio || "");
 
-      setName(userData.name);
-      setPhone(userData.phone);
-      setEmail(userData.email);
-      setBiography(userData.Biography);
-    };
-
-    fetchUserData();
-  }, []);
+      // Save to localStorage
+      localStorage.setItem("firstname", user.firstName || "");
+      localStorage.setItem("lastname", user.lastName || "");
+      localStorage.setItem("phone", user.phone || "");
+      localStorage.setItem("email", user.email || "");
+      localStorage.setItem("biography", user.bio || "");
+    }
+  }, [user]);
 
   const handleUpdate = (event) => {
     event.preventDefault();
     // Logic to handle updating the profile in the database
-    console.log("Profile updated:", { name, phone, email, biography });
+    console.log("Profile updated:", {
+      firstname,
+      lastname,
+      phone,
+      email,
+      biography,
+    });
+
+    // this might be removed here
+    localStorage.setItem("firstname", firstname);
+    localStorage.setItem("lastname", lastname);
+    localStorage.setItem("phone", phone);
+    localStorage.setItem("email", email);
+    localStorage.setItem("biography", biography);
   };
 
   return (
@@ -38,16 +63,19 @@ function MyProfile() {
       <div className="w-1/3 p-4 mb-6 bg-white rounded shadow-md">
         <h2 className="text-xl font-semibold">User Information</h2>
         <p className="mt-2 text-gray-700">
-          <strong>Name:</strong> {name}
+          <strong>First Name:</strong> {firstname}
         </p>
         <p className="mt-2 text-gray-700">
-          <strong>Phone Number:</strong> {phone}
+          <strong>Last Name:</strong> {lastname}
+        </p>
+        <p className="mt-2 text-gray-700">
+          <strong>Phone Number:</strong> {phone || "N/A"}
         </p>
         <p className="mt-2 text-gray-700">
           <strong>Email:</strong> {email}
         </p>
         <p className="mt-2 text-gray-700">
-          <strong>Biography:</strong> {biography}
+          <strong>Biography:</strong> {biography || "N/A"}
         </p>
       </div>
 
@@ -60,17 +88,33 @@ function MyProfile() {
         <div className="mb-4">
           <label
             className="block mb-2 text-sm font-bold text-gray-700"
-            htmlFor="name"
+            htmlFor="firstname"
           >
-            Name
+            First Name
           </label>
           <input
             className="w-full px-3 py-2 leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
-            id="name"
+            id="firstname"
             type="text"
-            placeholder="Enter your name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            placeholder="Enter your first name"
+            value={firstname || ""}
+            onChange={(e) => setFirstName(e.target.value)} // update first name state
+          />
+        </div>
+        <div className="mb-4">
+          <label
+            className="block mb-2 text-sm font-bold text-gray-700"
+            htmlFor="lastname"
+          >
+            Last Name
+          </label>
+          <input
+            className="w-full px-3 py-2 leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
+            id="lastname"
+            type="text"
+            placeholder="Enter your last name"
+            value={lastname || ""}
+            onChange={(e) => setLastName(e.target.value)} // update last name state
           />
         </div>
         <div className="mb-4">
@@ -85,7 +129,7 @@ function MyProfile() {
             id="phone"
             type="tel"
             placeholder="Enter your phone number"
-            value={phone}
+            value={phone || ""}
             onChange={(e) => setPhone(e.target.value)}
           />
         </div>
@@ -101,7 +145,7 @@ function MyProfile() {
             id="email"
             type="email"
             placeholder="Enter your email"
-            value={email}
+            value={email || ""}
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
@@ -117,7 +161,7 @@ function MyProfile() {
             id="biography"
             placeholder="Enter your biography"
             rows="4"
-            value={biography}
+            value={biography || ""}
             onChange={(e) => setBiography(e.target.value)}
           />
         </div>

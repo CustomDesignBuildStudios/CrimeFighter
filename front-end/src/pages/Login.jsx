@@ -27,6 +27,7 @@ function Login() {
       });
 
       if (response.data) {
+        console.log("Successfully logged in", response.data);
         login(response.data); // Set user data in context
         navigate("/myprofile");
       } else {
