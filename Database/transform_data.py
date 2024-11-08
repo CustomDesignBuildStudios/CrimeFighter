@@ -38,6 +38,10 @@ outputfile = 'Input_Data.sql'
 premiseTypes = {}
 crimeTypes = {}
 
+# Set a limit on the number of rows to process
+MAX_ROWS = 2000
+row_count = 0
+
 
 # Open CSV file and SQL file for writing
 with open(inputfile, mode='r', newline='', encoding='utf-8') as csvfile, open(outputfile, mode='w', encoding='utf-8') as sqlfile:
@@ -55,6 +59,11 @@ with open(inputfile, mode='r', newline='', encoding='utf-8') as csvfile, open(ou
 
     # Loop through each row of ToyCarOrdersAndSales.csv
     for row in csvreader:
+
+        # Check if we've reached the maximum number of rows to process
+        if row_count >= MAX_ROWS:
+            break
+
         dateTimeOcc = formatDateTime(row['DATE OCC'] , row['TIME OCC'])
 
 
@@ -63,19 +72,24 @@ with open(inputfile, mode='r', newline='', encoding='utf-8') as csvfile, open(ou
 
         # This uses the DictReader function for each attribute. Makes it 100x easier.
         insert_command = (
-                f"INSERT INTO CF_Crime VALUES ("
-                f"{row['DR_NO']}, {formatDate(row['Date Rptd'])}, {dateTimeOcc}, '{row['AREA']}', "
-                f"'{turnSingleToDoubleQutoes(row['AREA NAME'])}', '{turnSingleToDoubleQutoes(row['Rpt Dist No'])}',{row['Part 1-2']}, "
-                f"'{turnSingleToDoubleQutoes(row['Crm Cd'])}', '{turnSingleToDoubleQutoes(row['Crm Cd Desc'])}','{turnSingleToDoubleQutoes(row['Mocodes'])}', "
-                f"{int(row['Vict Age'])}, '{turnSingleToDoubleQutoes(row['Vict Sex'])}','{turnSingleToDoubleQutoes(row['Vict Descent'])}', "
-                f"{row['Premis Cd']}, '{turnSingleToDoubleQutoes(row['Premis Desc'])}','{turnSingleToDoubleQutoes(row['Weapon Used Cd'])}', "
-                f"'{turnSingleToDoubleQutoes(row['Weapon Desc'])}', '{turnSingleToDoubleQutoes(row['Status'])}','{turnSingleToDoubleQutoes(row['Status Desc'])}', "
-                f"'{turnSingleToDoubleQutoes(row['Crm Cd 1'])}', '{turnSingleToDoubleQutoes(row['Crm Cd 2'])}','{turnSingleToDoubleQutoes(row['Crm Cd 3'])}', "
-                f"'{turnSingleToDoubleQutoes(row['Crm Cd 4'])}', '{turnSingleToDoubleQutoes(" ".join(row['LOCATION'].split()))}','{turnSingleToDoubleQutoes(row['Cross Street'])}', "
-                f"{row['LAT']}, {row['LON']});\n"
-            )
+            f"INSERT INTO CF_Crime VALUES ("
+            f"{row['DR_NO']}, {formatDate(row['Date Rptd'])}, {dateTimeOcc}, '{row['AREA']}', "
+            f"'{turnSingleToDoubleQutoes(row['AREA NAME'])}', '{turnSingleToDoubleQutoes(row['Rpt Dist No'])}', {row['Part 1-2']}, "
+            f"'{turnSingleToDoubleQutoes(row['Crm Cd'])}', '{turnSingleToDoubleQutoes(row['Crm Cd Desc'])}', "
+            f"'{turnSingleToDoubleQutoes(row['Mocodes'])}', {int(row['Vict Age'])}, '{turnSingleToDoubleQutoes(row['Vict Sex'])}', "
+            f"'{turnSingleToDoubleQutoes(row['Vict Descent'])}', {row['Premis Cd']}, "
+            f"'{turnSingleToDoubleQutoes(row['Premis Desc'])}', '{turnSingleToDoubleQutoes(row['Weapon Used Cd'])}', "
+            f"'{turnSingleToDoubleQutoes(row['Weapon Desc'])}', '{turnSingleToDoubleQutoes(row['Status'])}', "
+            f"'{turnSingleToDoubleQutoes(row['Status Desc'])}', '{turnSingleToDoubleQutoes(row['Crm Cd 1'])}', "
+            f"'{turnSingleToDoubleQutoes(row['Crm Cd 2'])}', '{turnSingleToDoubleQutoes(row['Crm Cd 3'])}', "
+            f"'{turnSingleToDoubleQutoes(row['Crm Cd 4'])}', "
+            f"'{turnSingleToDoubleQutoes(' '.join(row['LOCATION'].split()))}', "
+            f"'{turnSingleToDoubleQutoes(row['Cross Street'])}', {row['LAT']}, {row['LON']});\n"
+        )
         # Write the SQL command to the output file
         sqlfile.write(insert_command)
+
+        row_count += 1  # Increment the row counter
 
     for key, value in premiseTypes.items():
         if(value == '' or key == ''): continue

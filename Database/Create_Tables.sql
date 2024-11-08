@@ -15,7 +15,7 @@ CREATE TABLE cf_crime(
     VictSex VARCHAR2(1) NULL,
     VictDescent VARCHAR2(1) NULL,
     PremisCd NUMBER NULL,
-    PremisDesc VARCHAR2(50) NULL,
+    PremisDesc VARCHAR2(100) NULL,
     WeaponUsedCd VARCHAR2(3) NULL,
     WeaponDesc VARCHAR2(50) NULL,
     Status VARCHAR2(2) NULL,
@@ -123,7 +123,7 @@ CREATE SEQUENCE cf_policeInsert START WITH 10000 INCREMENT BY 1;
 CREATE TABLE cf_premistype(
     id NUMBER NOT NULL,
     type VARCHAR2(5) NOT NULL,
-    value VARCHAR2(50) NOT NULL,
+    value VARCHAR2(100) NOT NULL,
     PRIMARY KEY (id)
 );
 CREATE SEQUENCE cf_premisTypeInsert START WITH 100 INCREMENT BY 1;
