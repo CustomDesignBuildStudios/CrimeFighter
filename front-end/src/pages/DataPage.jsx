@@ -3,7 +3,7 @@ import axios from 'axios';
 import CanvasJSReact from '@canvasjs/react-charts'; 
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
+import { GoogleMap, LoadScript, Marker, LoadScriptNext } from '@react-google-maps/api';
 
 
 var CanvasJS = CanvasJSReact.CanvasJS;
@@ -11,6 +11,50 @@ var CanvasJSChart = CanvasJSReact.CanvasJSChart;
 
 
 function DataPage() {
+  const [isMapLoaded, setIsMapLoaded] = useState(false);
+
+  const handleMapLoad = () => {
+    setIsMapLoaded(true); // Set to true when the map has loaded
+  };
+
+
+  const [activeTab, setActiveTab] = useState('tab1');
+
+  const tabs = [
+    { id: 'tab1', label: 'Chart', content: 'Content for Tab 1' },
+    { id: 'tab2', label: 'List', content: 'Content for Tab 2' },
+    { id: 'tab3', label: 'Map', content: 'Content for Tab 3' },
+  ];
+
+  let LAAreas = [
+    { id: '01', title: 'Central', lat: 34.0495, lng:-118.2477 },
+    { id: '02', title: 'Rampart', lat: 34.0690, lng:-118.2734 },
+    { id: '03', title: 'Southwest', lat: 34.0226, lng:-118.2887 },
+    { id: '04', title: 'Hollenbeck', lat: 34.0430, lng:-118.2112 },
+    { id: '05', title: 'Harbor', lat: 33.7397, lng:-118.2912 },
+    { id: '06', title: 'Hollywood', lat: 34.1015, lng:-118.3287 },
+    { id: '07', title: 'Wilshire', lat: 34.0594, lng:-118.3407 },
+    { id: '08', title: 'West Los Angeles', lat: 34.0524, lng:-118.4426 },
+    { id: '09', title: 'Van Nuys', lat: 34.1857, lng:-118.4489 },
+    { id: '10', title: 'West Valley', lat: 34.2011, lng:-118.5365 },
+    { id: '11', title: 'Northeast', lat: 34.1101, lng:-118.2096 },
+    { id: '12', title: '77th Street', lat: 33.9592, lng:-118.2915 },
+    { id: '13', title: 'Newton', lat: 34.0154, lng:-118.2468 },
+    { id: '14', title: 'Pacific', lat: 33.9932, lng:-118.4492 },
+    { id: '15', title: 'Narcotics', lat: 34.2011, lng:-118.3992 },
+    { id: '16', title: 'Foothill', lat: 34.2582, lng:-118.4196 },
+    { id: '17', title: 'Devonshire', lat: 34.2352, lng:-118.5360 },
+    { id: '18', title: 'Southeast', lat: 33.9386, lng:-118.2487 },
+    { id: '19', title: 'Mission', lat: 34.2723, lng:-118.4686 },
+    { id: '20', title: 'Olympic', lat: 34.0560, lng:-118.2970 },
+    { id: '21', title: 'Topanga', lat: 34.1926, lng:-118.6021 },
+  ];
+
+
+
+
+
+
   const [chartData, setChartData] = useState([]);
   const [chartTitle, setChartTitle] = useState("Title");
   const [chartType, setChartType] = useState("pie");
@@ -18,10 +62,38 @@ function DataPage() {
 
 
   //////////////////////////////Options sidebar
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  const [startOccurredDate, setStartOccurredDate] = useState(null);
+  const [endOccurredDate, setEndOccurredDate] = useState(null);
+
+  const [startReportedDate, setStartReportedDate] = useState(null);
+  const [endReportedDate, setEndReportedDate] = useState(null);
+
+
+  const [selectedDescentOptions, setSelectedDescentOptions] = useState([]);
+
+  const handleSelectDescentChange = (event) => {
+    const selectedValues = Array.from(event.target.selectedOptions, (option) => option.value);
+    setSelectedDescentOptions(selectedValues);
+  };
+  const [selectedStatusOptions, setSelectedStatusOptions] = useState([]);
+  const handleSelectStatusChange = (event) => {
+    const selectedValues = Array.from(event.target.selectedOptions, (option) => option.value);
+    setSelectedStatusOptions(selectedValues);
+  };
+
+  const [selectedCrimeOptions, setSelectedCrimeOptions] = useState([]);
+  const handleSelectCrimeChange = (event) => {
+    const selectedValues = Array.from(event.target.selectedOptions, (option) => option.value);
+    setSelectedCrimeOptions(selectedValues);
+  };
+  const [selectedLocationOptions, setSelectedLocationOptions] = useState([]);
+  const handleSelectLocationChange = (event) => {
+    const selectedValues = Array.from(event.target.selectedOptions, (option) => option.value);
+    setSelectedLocationOptions(selectedValues);
+  };
+
   const [dropdownOption, setDropdownOption] = useState('');
-  const [selectedOptions, setSelectedOptions] = useState([]);
+  const [selectedGenderOptions, setSelectedGenderOptions] = useState([]);
   const [radioOption, setRadioOption] = useState('');
   const [checkboxes, setCheckboxes] = useState({
     option1: false,
@@ -29,7 +101,7 @@ function DataPage() {
   });
 
   const handleMultiSelectChange = (option) => {
-    setSelectedOptions((prev) =>
+    setSelectedGenderOptions((prev) =>
       prev.includes(option) ? prev.filter((item) => item !== option) : [...prev, option]
     );
   };
@@ -37,12 +109,12 @@ function DataPage() {
   //////////////////////////////Google maps
   const containerStyle = {
     width: '100%',
-    height: '100vh'
+    height: '80vh'
   };
 
   const center = {
-    lat: 37.7749,  // Set your desired latitude
-    lng: -122.4194 // Set your desired longitude
+    lat: 34.052235,  // Set your desired latitude
+    lng: -118.243683 // Set your desired longitude
   };
 
   const dataPoints = [
@@ -86,7 +158,9 @@ function DataPage() {
     }]
   };
 
+  const UpdateData = () => {
 
+  }
 
   const apiCall = (type) => {
     const data = {
@@ -166,10 +240,10 @@ function DataPage() {
     <div className="flex h-screen">
       <div className="w-64 bg-gray-800 text-white flex flex-col p-4">
         <h2 className="text-lg font-semibold mb-4">Filters</h2>
-        <button onClick={() => apiCall("SEX")} className="bg-gray-700 py-2 px-4 rounded hover:bg-gray-600 mb-2">Pie Victim Sex</button>
+        {/* <button onClick={() => apiCall("SEX")} className="bg-gray-700 py-2 px-4 rounded hover:bg-gray-600 mb-2">Pie Victim Sex</button>
         <button onClick={() => apiCall("CRIME")} className="bg-gray-700 py-2 px-4 rounded hover:bg-gray-600 mb-2">Line Crime</button>
         <button onClick={() => apiCall("RACE")} className="bg-gray-700 py-2 px-4 rounded hover:bg-gray-600 mb-2">Pie Victim Race</button>
-        <button onClick={() => apiCall("STATUS")} className="bg-gray-700 py-2 px-4 rounded hover:bg-gray-600 mb-2">Pie Status</button>
+        <button onClick={() => apiCall("STATUS")} className="bg-gray-700 py-2 px-4 rounded hover:bg-gray-600 mb-2">Pie Status</button> */}
 
 
 
@@ -187,42 +261,163 @@ function DataPage() {
 
 
       {/* Search Bar */}
-      <div>
+      {/* <div>
         <label className="text-sm font-medium">Search</label>
         <input
           type="text"
           placeholder="Search..."
           className="mt-1 w-full p-2 rounded bg-gray-700 text-white focus:outline-none"
         />
-      </div>
+      </div> */}
 
       {/* Date Range Picker */}
       <div>
-        <label className="text-sm font-medium">Date Range</label>
+        <label className="text-sm font-medium">Date Crime Reported</label>
         <div className="flex space-x-2 mt-1">
           <DatePicker
-            selected={startDate}
-            onChange={(date) => setStartDate(date)}
+            selected={startReportedDate}
+            onChange={(date) => setStartReportedDate(date)}
             selectsStart
-            startDate={startDate}
-            endDate={endDate}
+            startReportedDate={startReportedDate}
+            endReportedDate={endReportedDate}
             placeholderText="Start Date"
             className="w-full p-2 rounded bg-gray-700 text-white"
           />
           <DatePicker
-            selected={endDate}
-            onChange={(date) => setEndDate(date)}
+            selected={endReportedDate}
+            onChange={(date) => setEndReportedDate(date)}
             selectsEnd
-            startDate={startDate}
-            endDate={endDate}
+            startReportedDate={startReportedDate}
+            endReportedDate={endReportedDate}
             placeholderText="End Date"
             className="w-full p-2 rounded bg-gray-700 text-white"
           />
         </div>
       </div>
-
-      {/* Dropdown */}
+      {/* Date Range Picker */}
       <div>
+        <label className="text-sm font-medium">Date Crime Occurred</label>
+        <div className="flex space-x-2 mt-1">
+          <DatePicker
+            selected={startOccurredDate}
+            onChange={(date) => setStartOccurredDate(date)}
+            selectsStart
+            startOccurredDate={startOccurredDate}
+            endOccurredDate={endOccurredDate}
+            placeholderText="Start Date"
+            className="w-full p-2 rounded bg-gray-700 text-white"
+          />
+          <DatePicker
+            selected={endOccurredDate}
+            onChange={(date) => setEndOccurredDate(date)}
+            selectsEnd
+            startOccurredDate={startOccurredDate}
+            endOccurredDate={endOccurredDate}
+            placeholderText="End Date"
+            className="w-full p-2 rounded bg-gray-700 text-white"
+          />
+        </div>
+      </div>
+      {/* Gender Multi-select */}
+      <div>
+        <label className="text-sm font-medium">Victim Gender</label>
+        <div className="flex flex-col mt-1">
+          {['Male', 'Female', 'Unknown'].map((option) => (
+            <label key={option} className="inline-flex items-center mt-1">
+              <input
+                type="checkbox"
+                className="form-checkbox bg-gray-700 text-white"
+                checked={selectedGenderOptions.includes(option)}
+                onChange={() => handleMultiSelectChange(option)}
+              />
+              <span className="ml-2">{option}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+
+
+
+      {/* Victim Descent */}
+      <div>
+        <label className="text-sm font-medium">Victim Descent</label>
+        <select
+          multiple
+          value={selectedDescentOptions}
+          onChange={handleSelectDescentChange}
+          className="mt-1 w-full p-2 rounded bg-gray-700 text-white"
+        >
+          <option value="A">Asian</option>
+          <option value="B">Black</option>
+          <option value="C">Chinese</option>
+          <option value="D">Cambodian</option>
+          <option value="F">Filipino</option>
+          <option value="G">Guamanian</option>
+          <option value="H">Hispanic</option>
+          <option value="I">American Indian</option>
+          <option value="J">Japanese</option>
+          <option value="K">Korean</option>
+          <option value="L">Laotian</option>
+          <option value="O">Other</option>
+          <option value="P">Pacific Islander</option>
+          <option value="S">Samoan</option>
+          <option value="U">Hawaiian</option>
+          <option value="V">Vietnamese</option>
+          <option value="W">White</option>
+          <option value="Z">Asian Indian</option>
+          <option value="X">Unknown</option>
+          </select>
+      </div>
+      {/* Status */}
+      <div>
+        <label className="text-sm font-medium">Status</label>
+        <select
+          multiple
+          value={selectedStatusOptions}
+          onChange={handleSelectStatusChange}
+          className="mt-1 w-full p-2 rounded bg-gray-700 text-white"
+        >
+          <option value="AA">Adult Arrest</option>
+          <option value="IC">Invest Cont</option>
+          <option value="AO">Adult Other</option>
+        </select>
+      </div>
+      {/* Premis Type */}
+      <div>
+        <label className="text-sm font-medium">Crime Location</label>
+        <select
+          multiple
+          value={selectedLocationOptions}
+          onChange={handleSelectLocationChange}
+          className="mt-1 w-full p-2 rounded bg-gray-700 text-white"
+        >
+          <option value="AA">Adult Arrest</option>
+          <option value="IC">Invest Cont</option>
+          <option value="AO">Adult Other</option>
+        </select>
+      </div>
+      {/* Crime Type */}
+      <div>
+        <label className="text-sm font-medium">Crime Type</label>
+        <select
+          multiple
+          value={selectedCrimeOptions}
+          onChange={handleSelectCrimeChange}
+          className="mt-1 w-full p-2 rounded bg-gray-700 text-white"
+        >
+          <option value="510,480,343,341">Theft</option>
+          <option value="330">Burglary</option>
+          <option value="624">Simple Assualt</option>
+          <option value="821">Sexual Assualt</option>
+          <option value="230">Aggravated Assualt</option>
+          </select>
+      </div>
+
+
+      
+      {/* Dropdown */}
+      {/* <div>
         <label className="text-sm font-medium">Category</label>
         <select
           value={dropdownOption}
@@ -234,28 +429,12 @@ function DataPage() {
           <option value="option2">Option 2</option>
           <option value="option3">Option 3</option>
         </select>
-      </div>
+      </div> */}
 
-      {/* Multi-select */}
-      <div>
-        <label className="text-sm font-medium">Multi-Select</label>
-        <div className="flex flex-col mt-1">
-          {['Option A', 'Option B', 'Option C'].map((option) => (
-            <label key={option} className="inline-flex items-center mt-1">
-              <input
-                type="checkbox"
-                className="form-checkbox bg-gray-700 text-white"
-                checked={selectedOptions.includes(option)}
-                onChange={() => handleMultiSelectChange(option)}
-              />
-              <span className="ml-2">{option}</span>
-            </label>
-          ))}
-        </div>
-      </div>
+
 
       {/* Radio Buttons */}
-      <div>
+      {/* <div>
         <label className="text-sm font-medium">Select Type</label>
         <div className="flex flex-col mt-1">
           {['Type 1', 'Type 2', 'Type 3'].map((type) => (
@@ -272,10 +451,10 @@ function DataPage() {
             </label>
           ))}
         </div>
-      </div>
+      </div> */}
 
       {/* Checkboxes */}
-      <div>
+      {/* <div>
         <label className="text-sm font-medium">Options</label>
         <div className="flex flex-col mt-1">
           <label className="inline-flex items-center">
@@ -301,6 +480,25 @@ function DataPage() {
             <span className="ml-2">Option 2</span>
           </label>
         </div>
+      </div> */}
+
+
+
+
+
+
+
+
+
+
+
+        <button onClick={() => UpdateData()} className="bg-gray-700 py-2 px-4 rounded hover:bg-gray-600 mb-2">Update</button>
+
+
+
+
+
+
       </div>
 
 
@@ -314,66 +512,81 @@ function DataPage() {
 
 
 
-
-
-
-
-
-      </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      <div className="flex-1 p-4 bg-gray-100">
-        <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
-        <div className="bg-white p-4 shadow rounded">
-            <CanvasJSChart options = {options} 
-                  /* onRef={ref => this.chart = ref} */
-                  /* containerProps={{ width: '100%', height: '300px' }} */
-                /> 
-        </div>
-
-
-        <div className="p-4">
-          <h2 className="text-xl font-bold mb-4">Data List</h2>
-          <ul className="list-disc pl-5 space-y-2">
-            {dataPoints.map((item) => (
-              <li key={item.id} className="border border-gray-300 rounded p-2">
-                <strong>Status:</strong> {item.status}, <strong>Location:</strong> {item.lat}, {item.lng}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <LoadScript googleMapsApiKey="AIzaSyD5aQjrqz7O84b1lSmYp0vUdwGfPxOT3kk">
-          <GoogleMap
-            mapContainerStyle={containerStyle}
-            center={center}
-            zoom={10}
+      <div className="w-full">
+      {/* Tab Buttons */}
+      <div className="flex border-b border-gray-300">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`p-2 w-full text-center font-medium ${
+              activeTab === tab.id
+                ? 'border-b-2 border-blue-500 text-blue-500'
+                : 'text-gray-500'
+            }`}
           >
-  
-          </GoogleMap>
-        </LoadScript>
+            {tab.label}
+          </button>
+        ))}
       </div>
+
+      {/* Tab Content */}
+      <div className="p-4 text-gray-700">
+        {activeTab === 'tab1' && (
+          <div>
+            <div className="bg-white p-4 shadow rounded">
+                <CanvasJSChart options = {options} 
+                      // onRef={ref => this.chart = ref}
+                      // containerProps={{ width: '100%', height: '300px' }} 
+                    /> 
+            </div>
+          </div>
+        )}
+        {activeTab === 'tab2' && (
+          <div>
+            <div className="bg-white p-4 shadow rounded">
+              <h2 className="text-xl font-bold mb-4">Data List</h2>
+              <ul className="list-disc pl-5 space-y-2">
+                {dataPoints.map((item) => (
+                  <li key={item.id} className="border border-gray-300 rounded p-2">
+                    <strong>Status:</strong> {item.status}, <strong>Location:</strong> {item.lat}, {item.lng}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        )}
+        {activeTab === 'tab3' && (
+          <div>
+              <LoadScriptNext googleMapsApiKey="AIzaSyD5aQjrqz7O84b1lSmYp0vUdwGfPxOT3kk">
+               <GoogleMap
+                mapContainerStyle={containerStyle}
+                center={center}
+                zoom={10}
+                onLoad={handleMapLoad} // Ensure map is fully loaded before rendering markers
+              >
+                
+                {
+                LAAreas.map((area) => {(
+                  <Marker key={area.id} position={{ lat: area.lat, lng: area.lng }} />
+                )})
+                }
+              </GoogleMap>
+              </LoadScriptNext>
+          </div>
+        )}
+      </div>
+    </div>
+
+
+
+
+
+
+
+
+
+
  
     </div>
   );

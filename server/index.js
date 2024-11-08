@@ -39,15 +39,14 @@ app.post('/register', async (req, res) => {
             res.status(500).send("Missing parameters");
         }else{
             const result = await connection.execute(
-                `SELECT * FROM CF_Account WHERE password=:password AND email=:email`,
+                `SELECT * FROM CF_Account WHERE email=:email`,
                 {
-                    password: password,
                     email: email
                 }
             );
     
             if(result.rows.length > 0){
-                res.json(false);
+                res.status(500).send("Another account has same email");
             }else{
                 
                 
