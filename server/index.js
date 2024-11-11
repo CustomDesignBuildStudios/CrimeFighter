@@ -168,75 +168,20 @@ app.get('/', async (req, res) => {
     }
 })
 
-// app.get('/crime-item', async (req, res) => {
-//     let connection;
-//     try {
-//         // Establish connection
-//         connection = await oracledb.getConnection({
-//             user: mysqlUser,
-//             password: mysqlPassword,
-//             connectString: "oracle.cise.ufl.edu/orcl"
-//         });
 
-//         const id = req.query.id || '0'; 
+function transformArrayToSQLIn(arr){
+    let str = "(";
+    for (let index = 0; index < arr.length; index++) {
+        str+="'"+arr[index]+"',";
+        
+    }
+    str = str.substring(0, str.length - 1);
+    str+=")";
+    return str;
+}
 
-//         if(id=='0'){
-//             res.json([]);
-//         }else{
-//             const result = await connection.execute(
-//                 `SELECT * FROM CF_Crime WHERE DR_NO=${orderBy}`
-//             );
-    
-//             // Send the query result rows as a response
-//             res.json(result.rows);  // `rows` contains the query results as an array of objects
-//         }
 
-//     } catch (error) {
-//         console.error("Error executing query:", error);
-//         res.status(500).send("Error executing query");
-//     } finally {
-//         if (connection) {
-//             try {
-//                 await connection.close();
-//             } catch (err) {
-//                 console.error("Error closing connection:", err);
-//             }
-//         }
-//     }
-// })
-// app.post('/crime-item', async (req, res) => {
-//     let connection;
-//     try {
-//         // Establish connection
-//         connection = await oracledb.getConnection({
-//             user: mysqlUser,
-//             password: mysqlPassword,
-//             connectString: "oracle.cise.ufl.edu/orcl"
-//         });
-
-//         const data = req.body; 
-
-//         const result = await connection.execute(
-//             `INSERT INTO CF_Crime VALUES ()`
-//         );
-
-//         res.json({ message: "Row inserted successfully", rowsAffected: result.rowsAffected });
-
-//     } catch (error) {
-//         console.error("Error executing query:", error);
-//         res.status(500).send("Error executing query");
-//     } finally {
-//         if (connection) {
-//             try {
-//                 await connection.close();
-//             } catch (err) {
-//                 console.error("Error closing connection:", err);
-//             }
-//         }
-//     }
-// })
-
-app.post('/data', async (req, res) => {
+app.post('/general-data', async (req, res) => {
     let connection;
     try {
         // Establish connection
@@ -246,26 +191,122 @@ app.post('/data', async (req, res) => {
             connectString: "oracle.cise.ufl.edu/orcl"
         });
 
-        
+   
+        console.log(req.body);
         const orderBy = req.body['orderBy'] ?? "DR_NO";
-        const limit = parseInt(req.body['limit'] ?? 10);
-        const offset = parseInt(req.body['offset'] ?? 0);
+        const amount = parseInt(req.body['amount'] ?? 20);
+        const page = parseInt(req.body['page'] ?? 0);
+        const type = req.body['type'] ?? "LIST";
 
-        const validColumns = ['DR_NO']; 
-        if (!validColumns.includes(orderBy)) {
-            return res.status(400).send("Invalid column name for ordering");
+        let whereStatement = "WHERE ";
+
+        const occDateStart = req.body['occDateStart'] ?? "";
+        if(occDateStart != ""){whereStatement += ` DateTimeOcc > TO_TIMESTAMP('`+ occDateStart +`', 'YYYY-MM-DD"T"HH24:MI:SS.FF3"Z"') AND`;}
+        const occDateEnd = req.body['occDateEnd'] ?? "";
+        if(occDateEnd != ""){whereStatement += ` DateTimeOcc < TO_TIMESTAMP('`+ occDateEnd +`', 'YYYY-MM-DD"T"HH24:MI:SS.FF3"Z"') AND`;}
+        const rpDateStart = req.body['rpDateStart'] ?? "";
+        if(rpDateStart != ""){whereStatement += ` DateRptd > TO_DATE('${rpDateStart.split('T')[0]}', 'YYYY-MM-DD') AND`;}
+        const rpDateEnd = req.body['rpDateEnd'] ?? "";
+        if(rpDateEnd != ""){whereStatement += ` DateRptd < TO_DATE('${rpDateEnd.split('T')[0]}', 'YYYY-MM-DD') AND`;}
+        const descent = req.body['descent'] ?? [];
+        if(descent.length > 0){whereStatement += " VictDescent IN " + transformArrayToSQLIn(descent) + " AND";}
+        const status = req.body['status'] ?? [];
+        if(status.length > 0){whereStatement += " Status IN " + transformArrayToSQLIn(status) + " AND";}
+        const crime = req.body['crime'] ?? [];
+        if(crime.length > 0){whereStatement += " CrmCd IN " + transformArrayToSQLIn(crime) + " AND";}
+        const premis = req.body['premis'] ?? [];
+        if(premis.length > 0){whereStatement += " PremisCd IN " + transformArrayToSQLIn(premis) + " AND";}
+        const gender = req.body['gender'] ?? "";
+        if(gender.length > 0){whereStatement += " VictSex IN " + transformArrayToSQLIn(gender) + " AND";}
+
+
+        if (whereStatement.endsWith("AND")) {
+            whereStatement = whereStatement.slice(0, -3); 
+        }
+        if(whereStatement.length == 6){
+            whereStatement = "";
+        }
+        console.log(whereStatement);
+
+        if(type=="MAP"){
+            const result = await connection.execute(
+                `SELECT Area, COUNT(*) AS CrimeCount FROM CF_Crime `+whereStatement+ ` GROUP BY Area`
+            );
+    
+            res.json({type:type,results:result.rows});
+        }else{
+            const validColumns = ['DR_NO','VictSex','VictSex','VictAge']; 
+            if (!validColumns.includes(orderBy)) {
+                return res.status(400).send("Invalid column name for ordering");
+            }
+    
+            const result = await connection.execute(
+                `SELECT * FROM CF_Crime `+whereStatement+ ` ORDER BY ${orderBy} ASC OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY`,
+                {
+                    offset: (page*amount),
+                    limit: amount
+                }
+            );
+    
+            // Send the query result rows as a response
+            res.json({type:type,results:result.rows});
         }
 
-        const result = await connection.execute(
-            `SELECT * FROM CF_Crime ORDER BY ${orderBy} ASC OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY`,
-            {
-                offset: offset,
-                limit: limit
+
+
+    } catch (error) {
+        console.error("Error executing query:", error);
+        res.status(500).send("Error executing query");
+    } finally {
+        if (connection) {
+            try {
+                await connection.close();
+            } catch (err) {
+                console.error("Error closing connection:", err);
             }
+        }
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+app.get('/advance/area-density', async (req, res) => {
+    let connection;
+    try {
+        // Establish connection
+        connection = await oracledb.getConnection({
+            user: mysqlUser,
+            password: mysqlPassword,
+            connectString: "oracle.cise.ufl.edu/orcl"
+        });
+
+        const result = await connection.execute(
+            `SELECT
+                TO_CHAR(DateTimeOcc, 'YYYY-MM') AS Month,
+                COUNT(*) AS CrimeCount
+            FROM
+                cf_crime
+            WHERE
+                AreaName = :area_name
+                AND
+                EXTRACT(YEAR FROM DateTimeOcc) = :year
+            GROUP BY
+                TO_CHAR(DateTimeOcc, 'YYYY-MM')
+            ORDER BY
+                Month;`
         );
 
-        // Send the query result rows as a response
         res.json(result.rows);
+
+
 
     } catch (error) {
         console.error("Error executing query:", error);

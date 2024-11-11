@@ -23,6 +23,9 @@ function NavBar() {
           <Link to="/about" className="hover:text-gray-900 hover:underline">
             About
           </Link>
+          <Link to="/advance" className="hover:text-gray-900 hover:underline">
+            Advance Query
+          </Link>
           <Link to="/data" className="hover:text-gray-900 hover:underline">
             Data
           </Link>

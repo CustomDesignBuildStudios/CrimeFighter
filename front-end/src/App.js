@@ -10,6 +10,7 @@ import MyReports from "./pages/MyReports.jsx";
 import NavBar from "./Layouts/NavBar.jsx";
 import MyProfile from "./pages/MyProfile.jsx";
 import { GoogleMap, LoadScript, Marker, LoadScriptNext } from '@react-google-maps/api';
+import AdvanceQueryPage from "./pages/AdvanceQuery.jsx";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/data" element={<DataPage />} />
           <Route path="/" element={<AboutPage />} />
+          <Route path="/advance" element={<AdvanceQueryPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/myreports" element={<MyReports />} />

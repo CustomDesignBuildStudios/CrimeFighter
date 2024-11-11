@@ -37,6 +37,7 @@ outputfile = 'Input_Data.sql'
 
 premiseTypes = {}
 crimeTypes = {}
+weaponTypes = {}
 
 
 # Open CSV file and SQL file for writing
@@ -60,6 +61,7 @@ with open(inputfile, mode='r', newline='', encoding='utf-8') as csvfile, open(ou
 
         crimeTypes[row['Crm Cd']] = row['Crm Cd Desc']
         premiseTypes[row['Premis Cd']] = row['Premis Desc']
+        weaponTypes[row['Weapon Used Cd']] = row['Weapon Desc']
 
         # This uses the DictReader function for each attribute. Makes it 100x easier.
         insert_command = (
@@ -86,10 +88,22 @@ with open(inputfile, mode='r', newline='', encoding='utf-8') as csvfile, open(ou
         sqlfile.write(insert_command)
 
 
+
+
     for key, value in crimeTypes.items():
         if(value == '' or key == ''): continue
         insert_command = (
                 f"INSERT INTO cf_crimetype VALUES (cf_crimeTypeInsert.NEXTVAL,"
+                f"{turnSingleToDoubleQutoes(key)}, '{turnSingleToDoubleQutoes(value)}');\n"
+            )
+        sqlfile.write(insert_command)
+
+
+
+    for key, value in weaponTypes.items():
+        if(value == '' or key == ''): continue
+        insert_command = (
+                f"INSERT INTO cf_weaponType VALUES (cf_weaponTypeInsert.NEXTVAL,"
                 f"{turnSingleToDoubleQutoes(key)}, '{turnSingleToDoubleQutoes(value)}');\n"
             )
         sqlfile.write(insert_command)
