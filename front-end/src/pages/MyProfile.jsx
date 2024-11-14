@@ -1,36 +1,59 @@
 import { useState, useEffect } from "react";
+import { useAuth } from "../AuthContext.jsx";
+import axios from "axios";
 
 function MyProfile() {
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
-  const [biography, setBiography] = useState("");
+  const { user,setUser,login } = useAuth();
+ 
+
+  const [firstName, setFirstName] = useState(
+    user?.firstName || ""
+  );
+  const [lastName, setLastName] = useState(
+    user?.lastName || ""
+  );
+  const [phone, setPhone] = useState(
+    user?.phone || ""
+  );
+  const [biography, setBiography] = useState(
+    user?.bio || ""
+  );
 
   // Simulated user data fetch (replace with your data fetching logic)
   useEffect(() => {
-    const fetchUserData = () => {
-      // This should be replaced with the actual fetching logic from your database/API
-      const userData = {
-        name: "John Doe",
-        phone: "123-456-7890",
-        email: "john.doe@example.com",
-        Biography: "pull bio info from database",
-      };
+      console.log(user);
+      if (user) {
+        setUserData(user);
+      }
+  }, [user]);
 
-      setName(userData.name);
-      setPhone(userData.phone);
-      setEmail(userData.email);
-      setBiography(userData.Biography);
-    };
 
-    fetchUserData();
-  }, []);
-
-  const handleUpdate = (event) => {
+  async function handleUpdate(event) {
     event.preventDefault();
-    // Logic to handle updating the profile in the database
-    console.log("Profile updated:", { name, phone, email, biography });
-  };
+    try {
+      
+      let data = user;
+      data['firstName'] = firstName;
+      data['lastName'] = lastName;
+      data['phone'] = phone;
+      data['bio'] = biography;
+
+      const response = await axios.post("http://localhost:8080/profile", {user:user});
+      console.log(response.data);
+      if (response.data) {
+        setUser(response.data);
+      } else {
+        alert("Error");
+      }
+    } catch (error) {
+      alert("ERROR: " + error.message);
+    } finally {
+    
+    }
+  }
+
+
+
 
   return (
     <div className="flex flex-col items-center justify-center h-screen">
@@ -38,16 +61,19 @@ function MyProfile() {
       <div className="w-1/3 p-4 mb-6 bg-white rounded shadow-md">
         <h2 className="text-xl font-semibold">User Information</h2>
         <p className="mt-2 text-gray-700">
-          <strong>Name:</strong> {name}
+          <strong>First Name:</strong> {user['firstName']}
         </p>
         <p className="mt-2 text-gray-700">
-          <strong>Phone Number:</strong> {phone}
+          <strong>Last Name:</strong> {user['lastName']}
         </p>
         <p className="mt-2 text-gray-700">
-          <strong>Email:</strong> {email}
+          <strong>Phone Number:</strong> {user['phone'] || "N/A"}
         </p>
+        {/* <p className="mt-2 text-gray-700">
+          <strong>Email:</strong> {user['email']}
+        </p> */}
         <p className="mt-2 text-gray-700">
-          <strong>Biography:</strong> {biography}
+          <strong>Biography:</strong> {user['bio'] || "N/A"}
         </p>
       </div>
 
@@ -60,17 +86,33 @@ function MyProfile() {
         <div className="mb-4">
           <label
             className="block mb-2 text-sm font-bold text-gray-700"
-            htmlFor="name"
+            htmlFor="firstname"
           >
-            Name
+            First Name
           </label>
           <input
             className="w-full px-3 py-2 leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
-            id="name"
+            id="firstname"
             type="text"
-            placeholder="Enter your name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            placeholder="Enter your first name"
+            value={firstName || ""}
+            onChange={(e) => setFirstName(e.target.value)} // update first name state
+          />
+        </div>
+        <div className="mb-4">
+          <label
+            className="block mb-2 text-sm font-bold text-gray-700"
+            htmlFor="lastname"
+          >
+            Last Name
+          </label>
+          <input
+            className="w-full px-3 py-2 leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
+            id="lastname"
+            type="text"
+            placeholder="Enter your last name"
+            value={lastName || ""}
+            onChange={(e) => setLastName(e.target.value)} // update last name state
           />
         </div>
         <div className="mb-4">
@@ -85,11 +127,11 @@ function MyProfile() {
             id="phone"
             type="tel"
             placeholder="Enter your phone number"
-            value={phone}
+            value={phone || ""}
             onChange={(e) => setPhone(e.target.value)}
           />
         </div>
-        <div className="mb-4">
+        {/* <div className="mb-4">
           <label
             className="block mb-2 text-sm font-bold text-gray-700"
             htmlFor="email"
@@ -101,10 +143,10 @@ function MyProfile() {
             id="email"
             type="email"
             placeholder="Enter your email"
-            value={email}
+            value={email || ""}
             onChange={(e) => setEmail(e.target.value)}
           />
-        </div>
+        </div> */}
         <div className="mb-4">
           <label
             className="block mb-2 text-sm font-bold text-gray-700"
@@ -117,7 +159,7 @@ function MyProfile() {
             id="biography"
             placeholder="Enter your biography"
             rows="4"
-            value={biography}
+            value={biography || ""}
             onChange={(e) => setBiography(e.target.value)}
           />
         </div>

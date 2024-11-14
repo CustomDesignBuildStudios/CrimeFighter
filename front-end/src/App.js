@@ -11,17 +11,14 @@ import NavBar from "./Layouts/NavBar.jsx";
 import MyProfile from "./pages/MyProfile.jsx";
 import { GoogleMap, LoadScript, Marker, LoadScriptNext } from '@react-google-maps/api';
 import AdvanceQueryPage from "./pages/AdvanceQuery.jsx";
+import { AuthProvider } from "./AuthContext.jsx";
 
 function App() {
   
   return (
     <LoadScript googleMapsApiKey="AIzaSyD5aQjrqz7O84b1lSmYp0vUdwGfPxOT3kk">
       <Router>
-        {/* // <nav>
-        //   <Link to="/">Home</Link>
-        //   <Link to="/about">About</Link>
-        //   <Link to="/data">Data</Link>
-        // </nav> */}
+      <AuthProvider>
         <NavBar />
         <Routes>
           <Route path="/" element={<HomePage />} />
@@ -34,9 +31,9 @@ function App() {
           <Route path="/myreports" element={<DataPage data={{"type":"user"}} />}  />
           <Route path="/myprofile" element={<MyProfile />} />
         </Routes>
+        </AuthProvider>
       </Router>
   </LoadScript>
-
 
 
   );

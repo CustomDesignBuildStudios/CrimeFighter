@@ -1,0 +1,2 @@
+SELECT *
+FROM CF_CRIME;

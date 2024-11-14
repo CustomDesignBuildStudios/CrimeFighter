@@ -21,17 +21,21 @@ function Register() {
     try {
       setIsLoading(true);
 
-      axios.post('http://localhost:8080/register',{password:password,email:email,firstName:firstName,lastName:lastName}).then((results) => {
-        console.log(results);
+      axios
+        .post("http://localhost:8080/register", {
+          password: password,
+          email: email,
+          firstName: firstName,
+          lastName: lastName,
+        })
+        .then((results) => {
+          console.log(results);
 
-        if(results.data != false){
-          navigate('/myprofile');
-        }else{
-
-        }
-      });
-
-
+          if (results.data != false) {
+            navigate("/myprofile");
+          } else {
+          }
+        });
     } catch (error) {
       alert("ERROR: " + error.message);
     } finally {
@@ -42,7 +46,10 @@ function Register() {
   return (
     <div className="flex flex-col items-center justify-center h-screen">
       <h1 className="mb-4 text-4xl font-bold">Register</h1>
-      <form className="w-1/3 px-8 pt-6 pb-8 mb-4 bg-white rounded shadow-md" onSubmit={handleLogin}>
+      <form
+        className="w-1/3 px-8 pt-6 pb-8 mb-4 bg-white rounded shadow-md"
+        onSubmit={handleLogin}
+      >
         <div className="mb-4">
           <label
             className="block mb-2 text-sm font-bold text-gray-700"
@@ -59,8 +66,6 @@ function Register() {
           onChange={(e) => setFirstName(e.target.value)}
         />
         </div>
-
-
 
         <div className="mb-4">
           <label
@@ -79,7 +84,6 @@ function Register() {
         />
         </div>
 
-
         <div className="mb-4">
           <label
             className="block mb-2 text-sm font-bold text-gray-700"
@@ -96,6 +100,7 @@ function Register() {
           onChange={(e) => setEmail(e.target.value)}
         />
         </div>
+   
         <div className="mb-4">
           <label
             className="block mb-2 text-sm font-bold text-gray-700"
@@ -118,9 +123,6 @@ function Register() {
             />
           </InputField>
         </div>
-
-
-
 
 
         <div className="flex items-center justify-between">
