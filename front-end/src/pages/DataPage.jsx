@@ -6,6 +6,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { GoogleMap, LoadScript, Marker, LoadScriptNext } from '@react-google-maps/api';
 import CrimeModal from '../Components/CrimeModal';
 import { useLocation } from 'react-router-dom';
+import {MarkerF} from '@react-google-maps/api'
 
 
 var CanvasJS = CanvasJSReact.CanvasJS;
@@ -30,7 +31,7 @@ function DataPage() {
     setOrderBy(event.target.value); // Update state with selected value
   };
 
-
+  const [options, setOptions] = useState({});
   const [currentPage, setCurrentPage] = useState(0);
   const [orderBy, setOrderBy] = useState("DATERPTD_DESC");
   const [activeTab, setActiveTab] = useState('LIST');
@@ -39,7 +40,7 @@ function DataPage() {
   const [chartData, setChartData] = useState([]);
   const [chartTitle, setChartTitle] = useState("Title");
   const [chartType, setChartType] = useState("pie");
-  const [chartByType, setChartByType] = useState("GENDER");
+  const [chartByType, setChartByType] = useState("VICTSEX");
 
 
 
@@ -137,30 +138,45 @@ const descentData = {"A":"Asian","B":"Black","C":"Chinese","D":"Cambodian","F":"
   ,"S":"Samoan","U":"Hawaiian","V":"Vietnamese","W":"White","X":"Unknown","Z":"Asian Indian"
 };
 const genderData = {"M":"Male","F":"Female","U":"None","X":"Unknown"};
+const ageData = {"0-20":"0-20","21-40":"21-40","41-60":"41-60","61-80":"61-80","81-100":"81-100","100+":"100+"};
+
+const crimeTypeData = {
+  'THEFT':'Theft',
+  'ASSAULT':'Assault',
+  'SEXUAL ASSAULT':'Sexual Assault',
+  'EXTORTION':'Extortion',
+  'RAPE':'Rape',
+  'ARSON':'Arson',
+  'OTHER':'Other',
+  'THREATS':'Threats',
+
+};
+
 const statusData = {"AA":"Adult Arrest","IC":"Invest Cont","AO":"Adult Other"};
-const weaponsData =     {"105":"GUN","115":"GUN","122":"GUN","125":"GUN","108":"GUN","116":"GUN","120":"GUN","121":"GUN","123":"GUN","111":"GUN","118":"GUN","119":"GUN","117":"GUN","124":"GUN","110":"GUN","103":"GUN","102":"GUN","106":"GUN","104":"GUN","101":"GUN","114":"GUN","109":"GUN",
-  "516":"ANIMAL",
-  "307":"VEHICLE",
-  "400":"PHYSICAL",
-  "505":"EXPLOSIVE",
-  "301":"MELEE","200":"MELEE","305":"MELEE","205":"MELEE","215":"MELEE","223":"MELEE","217":"MELEE","214":"MELEE","209":"MELEE","308":"MELEE","207":"MELEE","211":"MELEE","213":"MELEE","210":"MELEE","219":"MELEE","514":"MELEE","202":"MELEE","221":"MELEE" };
+// const weaponsData =     {"105":"GUN","115":"GUN","122":"GUN","125":"GUN","108":"GUN","116":"GUN","120":"GUN","121":"GUN","123":"GUN","111":"GUN","118":"GUN","119":"GUN","117":"GUN","124":"GUN","110":"GUN","103":"GUN","102":"GUN","106":"GUN","104":"GUN","101":"GUN","114":"GUN","109":"GUN",
+//   "516":"ANIMAL",
+//   "307":"VEHICLE",
+//   "400":"PHYSICAL",
+//   "505":"EXPLOSIVE",
+//   "301":"MELEE","200":"MELEE","305":"MELEE","205":"MELEE","215":"MELEE","223":"MELEE","217":"MELEE","214":"MELEE","209":"MELEE","308":"MELEE","207":"MELEE","211":"MELEE","213":"MELEE","210":"MELEE","219":"MELEE","514":"MELEE","202":"MELEE","221":"MELEE" };
 
-// const weaponsData = {
-//   'GUN':{ title: 'Firearm', values:["105","115","122","125","108","116","120","121","123","111","118","119","117","124","110","103","102","106","104","101","114","109"] },
-//   'ANIMAL':{ title: 'Animal', values:["516"] },
-//   'VEHICLE':{ title: 'Vehicle', values:["307"] },
-//   'PHYSICAL':{ title: 'Physical Force', values:["400"] },
-//   'EXPLOSIVE':{ title: 'Explosives', values:["505"] },
-//   'U':{ title: 'Other', values:[] },
-//   'MELEE':{ title: 'Melee Weapon', values:["301","200","305","205","215","223","217","214","209","308","207","211","213","210","219","514","202","221"] },
+const weaponsData = {
+  'GUN':'Firearm',
+  'ANIMAL':'Animal',
+  'VEHICLE':'Vehicle',
+  'PHYSICAL':'Physical Force',
+  'EXPLOSIVE':'Explosives',
+  'OTHER':'Other',
+  'MELEE':'Melee Weapon',
 
-// };
+};
 
 
 
 
 
   //////////////////////////////Options sidebar
+  const [chartLabel, setChartLabel] = useState("{label} - {y}%");
   const [startOccurredDate, setStartOccurredDate] = useState(null);
   const [endOccurredDate, setEndOccurredDate] = useState(null);
 
@@ -168,8 +184,17 @@ const weaponsData =     {"105":"GUN","115":"GUN","122":"GUN","125":"GUN","108":"
   const [endReportedDate, setEndReportedDate] = useState(null);
 
 
+  const [selectedWeaponOptions, setSelectedWeaponOptions] = useState([]);
+  const handleSelectWeaponChange = (event) => {
+    const selectedValues = Array.from(event.target.selectedOptions, (option) => option.value);
+    setSelectedWeaponOptions(selectedValues);
+  };
+  const [selectedAgeOptions, setSelectedAgeOptions] = useState([]);
+  const handleSelectAgeChange = (event) => {
+    const selectedValues = Array.from(event.target.selectedOptions, (option) => option.value);
+    setSelectedAgeOptions(selectedValues);
+  };
   const [selectedDescentOptions, setSelectedDescentOptions] = useState([]);
-
   const handleSelectDescentChange = (event) => {
     const selectedValues = Array.from(event.target.selectedOptions, (option) => option.value);
     setSelectedDescentOptions(selectedValues);
@@ -210,75 +235,75 @@ const weaponsData =     {"105":"GUN","115":"GUN","122":"GUN","125":"GUN","108":"
   };
 
 
-  const getMarkerIcon = (status) => {
-    // switch (status) {
-    //   case 'active':
-    //     return 'http://maps.google.com/mapfiles/ms/icons/green-dot.png';
-    //   case 'inactive':
-    //     return 'http://maps.google.com/mapfiles/ms/icons/red-dot.png';
-    //   case 'pending':
-    //     return 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png';
-    //   default:
-        return 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png';
-    // }
-  };
+ 
 
 
 
   //////////////////////////////Server data
-  const options = {
-    theme: "light2", // "light1", "light2", "dark1", "dark2"
-    exportEnabled: true,
-    animationEnabled: true,
-    title: {
-      text: chartTitle
-    },
-    data: [{
-      type: chartType,
-      startAngle: 25,
-      toolTipContent: "<b>{label}</b>: {y}%",
-      showInLegend: "true",
-      legendText: "{label}",
-      indexLabelFontSize: 16,
-      indexLabel: "{label} - {y}%",
-      dataPoints: chartData
-    }]
-  };
+ 
 
-  
+  useEffect(() => {
+    // Update options when any dependencies change
+    setOptions({
+        theme: "light2", // "light1", "light2", "dark1", "dark2"
+        exportEnabled: true,
+        animationEnabled: true,
+        title: {
+          text: chartTitle
+        },
+        data: [{
+          type: chartType,
+          startAngle: 25,
+          toolTipContent: chartLabel,
+          showInLegend: "true",
+          legendText: "{label}",
+          indexLabelFontSize: 16,
+          indexLabel: chartLabel,
+          dataPoints: chartData
+        }]
+      
+      
+    });
+  }, [chartTitle, chartType, chartLabel, chartData]);
 
 
 
   const LoadChart = (results) => {
-
+    
     let total = 0;
     let columns = {"M":"Male","F":"Female","X":"Unknown","U":"None"};
     let columnValues = {};
-    let isMultiVal = false;
     let targetColumn = "VICTSEX";
-    if(chartByType == "GENDER"){
+
+    if(chartByType == "AREANAME"){
+      setChartLabel("{label} - {y}");
+    }else{
+      setChartLabel("{label} - {y}%");
+    }
+
+    if(chartByType == "VICTSEX"){
       setChartTitle( "Victims By Gender");
       setChartType("pie");
       targetColumn = "VICTSEX";
       columns = genderData;
     }
-    else if(chartByType == "AGE"){
-      setChartType("line");
+    else if(chartByType == "VICTAGE"){
+      setChartType("pie");
       setChartTitle( "Victim by Age");
 
       targetColumn = "VICTAGE";
-      columns = {"X":"Age","Y":"Number"};
+      columns = ageData;
     }
-    else if(chartByType == "DESCENT"){
+    else if(chartByType == "VICTDESCENT"){
       setChartType("pie");
       setChartTitle( "Victims By Descent");
       targetColumn = "VICTDESCENT";
       columns = descentData;
     }
-    else if(chartByType == "AREA"){
-      setChartType("bar");
+    else if(chartByType == "AREANAME"){
+      setChartType("pie");
       setChartTitle( "Crime By Area");
-      targetColumn = "AREA";
+      targetColumn = "AREANAME";
       columns = areaData;
     }
     else if(chartByType == "STATUS"){
@@ -287,98 +312,56 @@ const weaponsData =     {"105":"GUN","115":"GUN","122":"GUN","125":"GUN","108":"
       targetColumn = "STATUS";
       columns = statusData;
     }
-    else if(chartByType == "CRIME"){
-      setChartType("line");
-      setChartTitle( "Line Chart - Crime by year");
+    else if(chartByType == "CRMCD"){
+      setChartType("pie");
+      setChartTitle( "Crime by type");
 
-      targetColumn = "VICTSEX";
-      columns = {"M":"Male","F":"Female","U":"None","X":"Unknown"};
+      targetColumn = "CRMCD";
+      columns = crimeTypeData;
     }
-    else if(chartByType == "WEAPON"){
-      setChartType("bar");
+    else if(chartByType == "WEAPONUSEDCD"){
+      setChartType("pie");
       setChartTitle( "Weapons Used");
 
-      targetColumn = "WeaponUsedCd";
-      isMultiVal = true;
+      targetColumn = "WEAPONUSEDCD";
       columns = weaponsData;
     }
 
-    if(chartType == "pie"){
-      for (let index = 0; index < results.length; index++) {
-        console.log(results[index]);
-        if(results[index][targetColumn] == null)results[index][targetColumn] = "U";
-  
-        if (results[index][targetColumn] in columnValues) {
-          columnValues[results[index][targetColumn]]++;
-        }else{
-          columnValues[results[index][targetColumn]]=1;
-        }
-        total++;
-        console.log(results[index][targetColumn]);
-        console.log(columnValues);
-  
-      }
-      let data = {};
-      for (const key in columnValues) {
-        if (columnValues.hasOwnProperty(key)) { 
-          if (typeof columns[key] === "string") {
-            data[key] = {y:(columnValues[key]/total) * 100,label:columns[key]}
-          }
-        }else{
-          data[key] = {y:(columnValues[key]/total) * 100,label:columns[key]['title']}
-        }
-      }
 
+    if(chartType == "pie"){
+      let data = {};
+      for (let index = 0; index < results.length; index++) {
+        total+= results[index]['COLCOUNT'];
+        console.log(results[index]["COLCOUNT"]);
+        console.log(results[index]["LABEL"]);
+        console.log(total);
+      }
+      for (let index = 0; index < results.length; index++) {
+        data[results[index]['LABEL']] = {y:parseFloat(((results[index]['COLCOUNT']/total) * 100).toFixed(1)),label:columns[results[index]['LABEL']]}
+      }
+      console.log(data)
       setChartData(Object.values(data));
     }
-    else if(chartType == "bar"){
-      for (let index = 0; index < results.length; index++) {
-        console.log(results[index]);
-        if(results[index][targetColumn] == null)results[index][targetColumn] = "U";
-  
+    else if(chartType == "column"){
 
-
-        if (results[index][targetColumn] in columnValues) {
-          columnValues[results[index][targetColumn]]++;
-        }else{
-          columnValues[results[index][targetColumn]]=1;
-        }
-        total++;
-        console.log(results[index][targetColumn]);
-        console.log(columnValues);
-  
-      }
       let data = {};
-      for (const key in columnValues) {
-        if (columnValues.hasOwnProperty(key)) { 
-          if (typeof columns[key] === "string") {
-            data[key] = {y:(columnValues[key]/total) * 100,label:columns[key]}
-          }else{
-            data[key] = {y:(columnValues[key]/total) * 100,label:columns[key]['title']}
-          }
-        }else{
-          data[key] = {y:(columnValues[key]/total) * 100,label:columns[key]['title']}
-        }
+      for (let index = 0; index < results.length; index++) {
+        data[results[index]['LABEL']] = {y:results[index]['COLCOUNT'],label:results[index]['LABEL']}
       }
+      console.log(results)
+      console.log(data)
       setChartData(Object.values(data));
+
     }
     else if(chartType == "line"){
-      let data = [  { x: 18, y: 5 },
-        { x: 20, y: 15 },
-        { x: 22, y: 9 },
-        { x: 25, y: 12 },
-        { x: 28, y: 7 },
-        { x: 30, y: 10 },
-        { x: 35, y: 20 }];
-      // for (let index = 0; index < results.length; index++) {
+      let newData = [];
+      results.sort((a, b) => a.LABEL - b.LABEL);
 
-      // }
-      // for (const key in columnValues) {
-      //   if (columnValues.hasOwnProperty(key)) { 
-      //     data.push({x:,y:})
-      //   }
-      // }
-      setChartData(Object.values(data));
+      for (let index = 0; index < results.length; index++) {
+        newData.push({x:results[index]["LABEL"],y:results[index]["COLCOUNT"]})
+      }
+
+      setChartData(Object.values(newData));
     }
 
 
@@ -387,6 +370,7 @@ const weaponsData =     {"105":"GUN","115":"GUN","122":"GUN","125":"GUN","108":"
     const data = {
       isUser:urlData['type'],
       orderBy:orderBy,
+      groupBy:chartByType,
       type:activeTab,
       page:page,
       amount:20,
@@ -395,6 +379,8 @@ const weaponsData =     {"105":"GUN","115":"GUN","122":"GUN","125":"GUN","108":"
       rpDateStart:startReportedDate,
       rpDateEnd:endReportedDate,
       descent:selectedDescentOptions,
+      age:selectedAgeOptions,
+      weapon:selectedWeaponOptions,
       status:selectedStatusOptions,
       crime:selectedCrimeOptions,
       premis:selectedLocationOptions,
@@ -539,6 +525,20 @@ const weaponsData =     {"105":"GUN","115":"GUN","122":"GUN","125":"GUN","108":"
           ))}
           </select>
       </div>
+      {/* Victim Age */}
+      <div>
+        <label className="text-sm font-medium">Victim Age Bracket</label>
+        <select
+          multiple
+          value={selectedAgeOptions}
+          onChange={handleSelectAgeChange}
+          className="mt-1 w-full p-2 rounded bg-gray-700 text-white"
+        >
+          {Object.entries(ageData).map(([key, value]) => (
+            <option key={key} value={key}>{value}</option>
+          ))}
+          </select>
+      </div>
       {/* Status */}
       <div>
         <label className="text-sm font-medium">Status</label>
@@ -554,7 +554,7 @@ const weaponsData =     {"105":"GUN","115":"GUN","122":"GUN","125":"GUN","108":"
         </select>
       </div>
       {/* Premis Type */}
-      <div>
+      {/* <div>
         <label className="text-sm font-medium">Crime Location</label>
         <select
           multiple
@@ -566,7 +566,7 @@ const weaponsData =     {"105":"GUN","115":"GUN","122":"GUN","125":"GUN","108":"
           <option value="103">ALLEY</option>
           <option value="301">GAS STATION</option>
         </select>
-      </div>
+      </div> */}
       {/* Crime Type */}
       <div>
         <label className="text-sm font-medium">Crime Type</label>
@@ -576,13 +576,28 @@ const weaponsData =     {"105":"GUN","115":"GUN","122":"GUN","125":"GUN","108":"
           onChange={handleSelectCrimeChange}
           className="mt-1 w-full p-2 rounded bg-gray-700 text-white"
         >
-          <option value="510,480,343,341">Theft</option>
-          <option value="330">Burglary</option>
-          <option value="624">Simple Assualt</option>
-          <option value="821">Sexual Assualt</option>
-          <option value="230">Aggravated Assualt</option>
+          {Object.entries(crimeTypeData).map(([key, value]) => (
+            <option key={key} value={key}>{value}</option>
+          ))}
           </select>
       </div>
+     {/* Weapon Type */}
+     <div>
+        <label className="text-sm font-medium">Weapon Type</label>
+        <select
+          multiple
+          value={selectedWeaponOptions}
+          onChange={handleSelectWeaponChange}
+          className="mt-1 w-full p-2 rounded bg-gray-700 text-white"
+        >
+          {Object.entries(weaponsData).map(([key, value]) => (
+            <option key={key} value={key}>{value}</option>
+          ))}
+          </select>
+      </div>
+
+
+
       {/* Update Filter */}
       <button onClick={() => LoadData(0)} className="bg-gray-700 py-2 px-4 rounded hover:bg-gray-600 mb-2 mt-2">Update</button>
       </div>
@@ -623,13 +638,13 @@ const weaponsData =     {"105":"GUN","115":"GUN","122":"GUN","125":"GUN","108":"
             {/* Sidebar */}
             <div className="w-1/4 bg-gray-100 p-4 flex flex-col">
               <h2 className="text-xl font-bold mb-4">Types</h2>
-              <button onClick={() => setChartByType("GENDER")} className="block w-full mb-2 p-2 bg-blue-500 text-white rounded">Gender</button>
-              <button onClick={() => setChartByType("AGE")} className="block w-full mb-2 p-2 bg-blue-500 text-white rounded">Age</button>
-              <button onClick={() => setChartByType("DESCENT")} className="block w-full mb-2 p-2 bg-blue-500 text-white rounded">Descent</button>
-              <button onClick={() => setChartByType("CRIME")} className="block w-full mb-2 p-2 bg-blue-500 text-white rounded">Crime</button>
+              <button onClick={() => setChartByType("VICTSEX")} className="block w-full mb-2 p-2 bg-blue-500 text-white rounded">Gender</button>
+              <button onClick={() => setChartByType("VICTAGE")} className="block w-full mb-2 p-2 bg-blue-500 text-white rounded">Age</button>
+              <button onClick={() => setChartByType("VICTDESCENT")} className="block w-full mb-2 p-2 bg-blue-500 text-white rounded">Descent</button>
+              <button onClick={() => setChartByType("CRMCD")} className="block w-full mb-2 p-2 bg-blue-500 text-white rounded">Crime</button>
               <button onClick={() => setChartByType("STATUS")} className="block w-full mb-2 p-2 bg-blue-500 text-white rounded">Status</button>
-              <button onClick={() => setChartByType("AREA")} className="block w-full mb-2 p-2 bg-blue-500 text-white rounded">Area</button>
-              <button onClick={() => setChartByType("WEAPON")} className="block w-full mb-2 p-2 bg-blue-500 text-white rounded">Weapon Used</button>
+              <button onClick={() => setChartByType("AREANAME")} className="block w-full mb-2 p-2 bg-blue-500 text-white rounded">Area</button>
+              <button onClick={() => setChartByType("WEAPONUSEDCD")} className="block w-full mb-2 p-2 bg-blue-500 text-white rounded">Weapon Used</button>
             </div>
 
             {/* Chart Container */}
@@ -709,7 +724,7 @@ const weaponsData =     {"105":"GUN","115":"GUN","122":"GUN","125":"GUN","108":"
               >
                 {
                   mapData['data'].map((area) => (
-                    <Marker 
+                    <MarkerF 
                       key={area.AREA} 
                       position={{ lat: areaData[area.AREA].lat, lng: areaData[area.AREA].lng }} 
                       icon={{
