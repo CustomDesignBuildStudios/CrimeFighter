@@ -25,7 +25,7 @@ export function AuthProvider({ children }) {
       phone: userData.PHONE,
       homeAddress: userData.HOMEADDRESS,
     });
-    console.log(userData);
+    console.log("Hello" + userData);
     localStorage.setItem("user", JSON.stringify(userData));
   };
 

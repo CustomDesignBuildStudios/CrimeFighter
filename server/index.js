@@ -249,7 +249,8 @@ app.post("/data", async (req, res) => {
   } finally {
     if (connection) {
       try {
-        await connection.close();
+        await connection.close();SELECT *
+FROM CF_ACCOUNT;
       } catch (err) {
         console.error("Error closing connection:", err);
       }
