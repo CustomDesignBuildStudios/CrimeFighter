@@ -115,6 +115,67 @@ app.post("/login", async (req, res) => {
   }
 });
 
+
+
+app.post("/profile", async (req, res) => {
+  let connection;
+  try {
+    // Establish connection
+    connection = await oracledb.getConnection({
+      user: mysqlUser,
+      password: mysqlPassword,
+      connectString: "oracle.cise.ufl.edu/orcl",
+    });
+
+    const user = req.body["user"] ?? {};
+    const FirstName = user['firstName'] ?? "";
+    const LastName = user['lastName'] ?? "";
+    const Phone = user['phone'] ?? "";
+    const Bio = user['bio'] ?? "";
+    const AccountID = user['accountId'] ?? -1;
+
+
+    console.log(user);
+    console.log(FirstName);
+    console.log(LastName);
+    console.log(Phone);
+    console.log(AccountID);
+
+    if (user== {}) {
+      res.status(500).send("Error executing query");
+    } else {
+      const result = await connection.execute(
+        `UPDATE cf_account SET FirstName=:FirstName, LastName=:LastName, Phone=:Phone, Bio=:Bio WHERE AccountID=:AccountID`,
+        {
+          FirstName: FirstName,
+          LastName: LastName,
+          Phone: Phone,
+          Bio: Bio,
+          AccountID: AccountID,
+        }
+      );
+      console.log(result);
+
+      if (result.rowsAffected > 0) {
+        res.json(user);
+      } else {
+        res.json(false);
+      }
+    }
+  } catch (error) {
+    console.error("Error executing query:", error);
+    res.status(500).send("Error executing query");
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error("Error closing connection:", err);
+      }
+    }
+  }
+});
+
 app.get("/", async (req, res) => {
   let connection;
   try {

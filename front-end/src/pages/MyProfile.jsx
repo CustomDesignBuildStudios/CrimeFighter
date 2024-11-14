@@ -1,61 +1,59 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../AuthContext.jsx";
+import axios from "axios";
 
 function MyProfile() {
-  const { user } = useAuth();
-  console.log("user object in myprofile page: ", user);
-  const [firstname, setFirstName] = useState(
-    localStorage.getItem("firstname") || (user ? user.firstName : "")
+  const { user,setUser,login } = useAuth();
+ 
+
+  const [firstName, setFirstName] = useState(
+    user?.firstName || ""
   );
-  const [lastname, setLastName] = useState(
-    localStorage.getItem("lastname") || (user ? user.lastName : "")
+  const [lastName, setLastName] = useState(
+    user?.lastName || ""
   );
   const [phone, setPhone] = useState(
-    localStorage.getItem("phone") || user?.phone || ""
-  );
-  const [email, setEmail] = useState(
-    localStorage.getItem("email") || user?.email || ""
+    user?.phone || ""
   );
   const [biography, setBiography] = useState(
-    localStorage.getItem("biography") || user?.bio || ""
+    user?.bio || ""
   );
 
   // Simulated user data fetch (replace with your data fetching logic)
   useEffect(() => {
-    if (user) {
-      setFirstName(user.firstName || "");
-      setLastName(user.lastName || "");
-      setPhone(user.phone || "");
-      setEmail(user.email);
-      setBiography(user.bio || "");
-
-      // Save to localStorage
-      localStorage.setItem("firstname", user.firstName || "");
-      localStorage.setItem("lastname", user.lastName || "");
-      localStorage.setItem("phone", user.phone || "");
-      localStorage.setItem("email", user.email || "");
-      localStorage.setItem("biography", user.bio || "");
-    }
+      console.log(user);
+      if (user) {
+        setUserData(user);
+      }
   }, [user]);
 
-  const handleUpdate = (event) => {
-    event.preventDefault();
-    // Logic to handle updating the profile in the database
-    console.log("Profile updated:", {
-      firstname,
-      lastname,
-      phone,
-      email,
-      biography,
-    });
 
-    // this might be removed here
-    localStorage.setItem("firstname", firstname);
-    localStorage.setItem("lastname", lastname);
-    localStorage.setItem("phone", phone);
-    localStorage.setItem("email", email);
-    localStorage.setItem("biography", biography);
-  };
+  async function handleUpdate(event) {
+    event.preventDefault();
+    try {
+      
+      let data = user;
+      data['firstName'] = firstName;
+      data['lastName'] = lastName;
+      data['phone'] = phone;
+      data['bio'] = biography;
+
+      const response = await axios.post("http://localhost:8080/profile", {user:user});
+      console.log(response.data);
+      if (response.data) {
+        setUser(response.data);
+      } else {
+        alert("Error");
+      }
+    } catch (error) {
+      alert("ERROR: " + error.message);
+    } finally {
+    
+    }
+  }
+
+
+
 
   return (
     <div className="flex flex-col items-center justify-center h-screen">
@@ -63,19 +61,19 @@ function MyProfile() {
       <div className="w-1/3 p-4 mb-6 bg-white rounded shadow-md">
         <h2 className="text-xl font-semibold">User Information</h2>
         <p className="mt-2 text-gray-700">
-          <strong>First Name:</strong> {firstname}
+          <strong>First Name:</strong> {user['firstName']}
         </p>
         <p className="mt-2 text-gray-700">
-          <strong>Last Name:</strong> {lastname}
+          <strong>Last Name:</strong> {user['lastName']}
         </p>
         <p className="mt-2 text-gray-700">
-          <strong>Phone Number:</strong> {phone || "N/A"}
+          <strong>Phone Number:</strong> {user['phone'] || "N/A"}
         </p>
+        {/* <p className="mt-2 text-gray-700">
+          <strong>Email:</strong> {user['email']}
+        </p> */}
         <p className="mt-2 text-gray-700">
-          <strong>Email:</strong> {email}
-        </p>
-        <p className="mt-2 text-gray-700">
-          <strong>Biography:</strong> {biography || "N/A"}
+          <strong>Biography:</strong> {user['bio'] || "N/A"}
         </p>
       </div>
 
@@ -97,7 +95,7 @@ function MyProfile() {
             id="firstname"
             type="text"
             placeholder="Enter your first name"
-            value={firstname || ""}
+            value={firstName || ""}
             onChange={(e) => setFirstName(e.target.value)} // update first name state
           />
         </div>
@@ -113,7 +111,7 @@ function MyProfile() {
             id="lastname"
             type="text"
             placeholder="Enter your last name"
-            value={lastname || ""}
+            value={lastName || ""}
             onChange={(e) => setLastName(e.target.value)} // update last name state
           />
         </div>
@@ -133,7 +131,7 @@ function MyProfile() {
             onChange={(e) => setPhone(e.target.value)}
           />
         </div>
-        <div className="mb-4">
+        {/* <div className="mb-4">
           <label
             className="block mb-2 text-sm font-bold text-gray-700"
             htmlFor="email"
@@ -148,7 +146,7 @@ function MyProfile() {
             value={email || ""}
             onChange={(e) => setEmail(e.target.value)}
           />
-        </div>
+        </div> */}
         <div className="mb-4">
           <label
             className="block mb-2 text-sm font-bold text-gray-700"
