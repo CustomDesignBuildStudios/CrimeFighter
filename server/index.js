@@ -193,7 +193,8 @@ app.post('/general-data', async (req, res) => {
 
    
         console.log(req.body);
-        const orderBy = req.body['orderBy'] ?? "DR_NO";
+        let orderBy = req.body['orderBy'] ?? "DR_NO";
+        let orderByDir = "ASC";
         const amount = parseInt(req.body['amount'] ?? 20);
         const page = parseInt(req.body['page'] ?? 0);
         const type = req.body['type'] ?? "LIST";
@@ -228,6 +229,27 @@ app.post('/general-data', async (req, res) => {
         }
         console.log(whereStatement);
 
+
+        if(type != "MAP"){
+            if(orderBy == "DATERPTD_DESC"){
+                orderBy = "DATERPTD";
+                orderByDir = "DESC";
+            }
+            else if(orderBy == "DATERPTD_ASC"){
+                orderBy = "DATERPTD";
+                orderByDir = "ASC";
+            }
+            else if(orderBy == "DATEOCC_DESC"){
+                orderBy = "DATETIMEOCC";
+                orderByDir = "DESC";
+            }
+            else{
+                orderBy = "DATETIMEOCC";
+                orderByDir = "ASC";
+            }
+        }
+
+
         if(type=="MAP"){
             const result = await connection.execute(
                 `SELECT Area, COUNT(*) AS CrimeCount FROM CF_Crime `+whereStatement+ ` GROUP BY Area`
@@ -235,13 +257,13 @@ app.post('/general-data', async (req, res) => {
     
             res.json({type:type,results:result.rows});
         }else{
-            const validColumns = ['DR_NO','VictSex','VictSex','VictAge']; 
+            const validColumns = ['DR_NO','DATETIMEOCC','DATERPTD']; 
             if (!validColumns.includes(orderBy)) {
                 return res.status(400).send("Invalid column name for ordering");
             }
     
             const result = await connection.execute(
-                `SELECT * FROM CF_Crime `+whereStatement+ ` ORDER BY ${orderBy} ASC OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY`,
+                `SELECT * FROM CF_Crime `+whereStatement+ ` ORDER BY ${orderBy} ${orderByDir} OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY`,
                 {
                     offset: (page*amount),
                     limit: amount

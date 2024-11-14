@@ -1,0 +1,80 @@
+
+
+
+512, 'MACE/PEPPER SPRAY
+
+515, 'PHYSICAL PRESENCE
+201, 'KNIFE WITH BLADE OVER 6 INCHES IN LENGTH
+311, 'HAMMER
+113, 'SIMULATED GUN
+208, 'RAZOR
+107, 'OTHER FIREARM
+204, 'FOLDING KNIFE
+312, 'PIPE/METAL PIPE
+306, 'ROCK/THROWN OBJECT
+218, 'OTHER CUTTING INSTRUMENT
+506, 'FIRE
+212, 'BOTTLE
+216, 'SCISSORS
+206, 'SWITCH BLADE
+303, 'BRASS KNUCKLES
+304, 'CLUB/BAT
+302, 'BLUNT INSTRUMENT
+309, 'BOARD
+513, 'STUN GUN
+310, 'CONCRETE BLOCK/BRICK
+503, 'CAUSTIC CHEMICAL/POISON
+
+510, 'SCALDING LIQUID
+
+
+112, 'TOY GUN
+501, 'BOMB THREAT
+508, 'MARTIAL ARTS WEAPONS
+504, 'DEMAND NOTE
+203, 'DIRK/DAGGER
+509, 'ROPE/LIGATURE
+
+
+220, 'SYRINGE
+502, 'BOW AND ARROW
+507, 'LIQUOR/DRUGS
+
+500, 'UNKNOWN WEAPON/OTHER WEAPON
+511, 'VERBAL THREAT
+300, 'BLACKJACK
+
+
+
+
+
+const Weapons = [
+    'GUN':{ title: 'Firearm', types:["105","115","122","125","108","116","120","121","123","111","118","119","117","124","110","103","102","106","104","101","114","109"] },
+    'ANIMAL':{ title: 'Animal', types:["516"] },
+    'VEHICLE':{ title: 'Vehicle', types:["307"] },
+    'PHYSICAL':{ title: 'Physical Force', types:["400"] },
+    'EXPLOSIVE':{ title: 'Explosives', types:["505"] },
+    'OTHER':{ title: 'Other', types:[] },
+    'MELEE':{ title: 'Melee Weapon', types:["301","200","305","205","215","223","217","214","209","308","207","211","213","210","219","514","202","221"] },
+
+  ];
+
+
+
+
+
+
+
+
+{"A":"Asian","B":
+
+const weaponsData = {
+  'GUN':{ title: 'Firearm', values:[
+    
+    
+    {"105":"GUN","115":"GUN","122":"GUN","125":"GUN","108":"GUN","116":"GUN","120":"GUN","121":"GUN","123":"GUN","111":"GUN","118":"GUN","119":"GUN","117":"GUN","124":"GUN","110":"GUN","103":"GUN","102":"GUN","106":"GUN","104":"GUN","101":"GUN","114":"GUN","109",
+    "516":"ANIMAL",
+    "307":"VEHICLE",
+    "400":"PHYSICAL",
+    "505":"EXPLOSIVE",
+    "301":"MELEE","200":"MELEE","305":"MELEE","205":"MELEE","215":"MELEE","223":"MELEE","217":"MELEE","214":"MELEE","209":"MELEE","308":"MELEE","207":"MELEE","211":"MELEE","213":"MELEE","210":"MELEE","219":"MELEE","514":"MELEE","202":"MELEE","221" }

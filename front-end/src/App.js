@@ -13,6 +13,7 @@ import { GoogleMap, LoadScript, Marker, LoadScriptNext } from '@react-google-map
 import AdvanceQueryPage from "./pages/AdvanceQuery.jsx";
 
 function App() {
+  
   return (
     <LoadScript googleMapsApiKey="AIzaSyD5aQjrqz7O84b1lSmYp0vUdwGfPxOT3kk">
       <Router>
@@ -25,12 +26,12 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/about" element={<AboutPage />} />
-          <Route path="/data" element={<DataPage />} />
+          <Route path="/data" element={<DataPage data={{"type":"none"}} />} />
           <Route path="/" element={<AboutPage />} />
           <Route path="/advance" element={<AdvanceQueryPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/myreports" element={<MyReports />} />
+          <Route path="/myreports" element={<DataPage data={{"type":"user"}} />}  />
           <Route path="/myprofile" element={<MyProfile />} />
         </Routes>
       </Router>
