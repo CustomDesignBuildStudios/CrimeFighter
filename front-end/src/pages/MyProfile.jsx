@@ -20,12 +20,12 @@ function MyProfile() {
   );
 
   // Simulated user data fetch (replace with your data fetching logic)
-  useEffect(() => {
-      console.log(user);
-      if (user) {
-        setUserData(user);
-      }
-  }, [user]);
+  // useEffect(() => {
+  //     console.log(user);
+  //     if (user) {
+  //       setUser(user);
+  //     }
+  // }, [user]);
 
 
   async function handleUpdate(event) {
