@@ -19,13 +19,10 @@ function NavBar() {
           <Link to="/" className="hover:text-gray-900 hover:underline">
             Home
           </Link>
-          <Link to="/about" className="hover:text-gray-900 hover:underline">
-            About
-          </Link>
           <Link to="/advance" className="hover:text-gray-900 hover:underline">
-            Advance Query
+            Research
           </Link>
-          <Link to="/data" className="hover:text-gray-900 hover:underline">
+          <Link to="/data" className="hover:text-gray-900 hover:underline" state={{ type: 'none' }}>
             Data
           </Link>
 
@@ -35,6 +32,7 @@ function NavBar() {
               <Link
                 to="/myreports"
                 className="hover:text-gray-900 hover:underline"
+                state={{ type: 'user' }}
               >
                 My Reports
               </Link>

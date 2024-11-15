@@ -2,6 +2,8 @@ import { mysqlPassword, mysqlUser } from "./env.js";
 import express from "express";
 import cors from "cors";
 import oracledb from "oracledb";
+import moment from 'moment';
+
 
 const app = express();
 // const crimeData = require('./data.json');
@@ -298,6 +300,107 @@ app.post("/profile", async (req, res) => {
 
 
 
+app.post("/get-comments", async (req, res) => {
+  let connection;
+  try {
+    // Establish connection
+    connection = await oracledb.getConnection({
+      user: mysqlUser,
+      password: mysqlPassword,
+      connectString: "oracle.cise.ufl.edu/orcl",
+    });
+
+
+    const CrimeID = req.body['CrimeID'] ?? "";
+
+
+
+    if (CrimeID=="") {
+      res.status(500).send("Error executing query");
+    } else {
+      const result = await connection.execute(
+        `SELECT cf_public_comment.UserComment,cf_account.FirstName FROM cf_public_comment JOIN cf_account ON cf_account.AccountID=cf_public_comment.AccountID WHERE CrimeID=:CrimeID ORDER BY DatePosted DESC`,
+        {
+          CrimeID: CrimeID,
+        }
+      );
+      console.log(result);
+
+      if (result.rows.length > 0) {
+        res.json(result.rows);
+      } else {
+        res.json(false);
+      }
+    }
+  } catch (error) {
+    console.error("Error executing query:", error);
+    res.status(500).send("Error executing query");
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error("Error closing connection:", err);
+      }
+    }
+  }
+});
+
+
+app.post("/add-comment", async (req, res) => {
+  let connection;
+  try {
+    // Establish connection
+    connection = await oracledb.getConnection({
+      user: mysqlUser,
+      password: mysqlPassword,
+      connectString: "oracle.cise.ufl.edu/orcl",
+    });
+
+
+    const CrimeID = req.body['CrimeID'] ?? "";
+    const AccountID = req.body['AccountID'] ?? "";
+    const UserComment = req.body['UserComment'] ?? "";
+
+
+
+    if (CrimeID=="" || AccountID=="" || UserComment=="") {
+      res.status(500).send("Error executing query");
+    } else {
+      let acc = "";
+      if(AccountID == ""){
+        acc = `AccountID=:AccountID`
+      }
+      console.log(`INSERT INTO cf_public_comment (CommentID, CrimeID, AccountID, UserComment,DatePosted) VALUES (cf_commentInsert.NEXTVAL,:CrimeID,:AccountID,:UserComment,SYSTIMESTAMP)`)
+      const result = await connection.execute(
+        `INSERT INTO cf_public_comment (CommentID, CrimeID, AccountID, UserComment,DatePosted) VALUES (cf_commentInsert.NEXTVAL,:CrimeID,:AccountID,:UserComment,SYSTIMESTAMP)`,
+        {
+          AccountID: AccountID,
+          CrimeID: CrimeID,
+          UserComment: UserComment,
+        }
+      );
+      console.log(result);
+
+      if (result.rowsAffected > 0) {
+        res.json(true);
+      } else {
+        res.json(false);
+      }
+    }
+  } catch (error) {
+    console.error("Error executing query:", error);
+    res.status(500).send("Error executing query");
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error("Error closing connection:", err);
+      }
+    }
+  }
+});
 
 
 
@@ -306,6 +409,57 @@ app.post("/profile", async (req, res) => {
 
 
 
+
+
+
+app.post("/add-report", async (req, res) => {
+  let connection;
+  try {
+    // Establish connection
+    connection = await oracledb.getConnection({
+      user: mysqlUser,
+      password: mysqlPassword,
+      connectString: "oracle.cise.ufl.edu/orcl",
+    });
+
+
+   
+    if (req.body['data']==null) {
+      res.status(500).send("Error executing query");
+    } else {
+      let data = req.body['data'];
+      data['DR_NO'] = Math.floor(Date.now() / 1000);
+      data['RPTDISTNUM'] = data['AREA'] + '00';
+  
+
+
+      const columns = [...Object.keys(data), 'DateRptd', 'DateTimeOcc'].join(', ');
+      const placeholders = [...Object.keys(data).map(key => `:${key}`), 'SYSDATE', 'CURRENT_TIMESTAMP'].join(', ');
+      
+      const sql = `INSERT INTO cf_crime (${columns}) VALUES (${placeholders})`;
+      console.log(data);
+      console.log(sql);
+      const result = await connection.execute(sql, data);
+      if (result.rowsAffected > 0) {
+        res.json(true);
+      } else {
+        res.json(false);
+      }
+
+    }
+  } catch (error) {
+    console.error("Error executing query:", error);
+    res.status(500).send("Error executing query");
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error("Error closing connection:", err);
+      }
+    }
+  }
+});
 
 
 
@@ -403,6 +557,13 @@ app.post('/general-data', async (req, res) => {
         const page = parseInt(req.body['page'] ?? 0);
         const type = req.body['type'] ?? "LIST";
         const groupBy = req.body['groupBy'] ?? "NONE";
+        let user = req.body['user'] ?? null;
+        const showUser = req.body['showUser'] ?? null;
+        if(showUser != null && showUser['type'] != 'user' ){
+          user = null;
+        }
+        console.log(user)
+
         
         let whereStatement = "WHERE ";
 
@@ -428,7 +589,7 @@ app.post('/general-data', async (req, res) => {
         if(age.length > 0){whereStatement += transformAgeArrayIntoSQL(age);}
         const weapon = req.body['weapon'] ?? [];
         if(weapon.length > 0){whereStatement += transformWeaponArrayIntoSQL(weapon);}
-
+        if(user != null){whereStatement += ` AccountID = ${user['accountId']} AND`}
 
         console.log(whereStatement);
         if (whereStatement.endsWith("AND")) {
@@ -589,7 +750,7 @@ app.post('/general-data', async (req, res) => {
 
 
 
-app.get('/advance/area-density', async (req, res) => {
+app.post('/advance/area-crime', async (req, res) => {
     let connection;
     try {
         // Establish connection
@@ -600,19 +761,19 @@ app.get('/advance/area-density', async (req, res) => {
         });
 
         const result = await connection.execute(
-            `SELECT
+            `
+            SELECT
                 TO_CHAR(DateTimeOcc, 'YYYY-MM') AS Month,
-                COUNT(*) AS CrimeCount
+                AreaName,
+                COUNT(*) AS SevereCrimeCount
             FROM
                 cf_crime
             WHERE
-                AreaName = :area_name
-                AND
-                EXTRACT(YEAR FROM DateTimeOcc) = :year
-            GROUP BY
-                TO_CHAR(DateTimeOcc, 'YYYY-MM')
-            ORDER BY
-                Month;`
+                CrmCd IN ('230', '821', '121', '113', '435', '822', '921', '865', '943', '812', '235', '840', '860', '110', '814', '648')
+                AND EXTRACT(YEAR FROM DateTimeOcc) = 2020
+            GROUP BY TO_CHAR(DateTimeOcc, 'YYYY-MM'),AreaName
+            ORDER BY Month, SevereCrimeCount DESC
+            `
         );
 
         res.json(result.rows);
@@ -632,6 +793,94 @@ app.get('/advance/area-density', async (req, res) => {
         }
     }
 });
+
+
+
+
+app.post('/advance/gender-time', async (req, res) => {
+  let connection;
+  try {
+      // Establish connection
+      connection = await oracledb.getConnection({
+          user: mysqlUser,
+          password: mysqlPassword,
+          connectString: "oracle.cise.ufl.edu/orcl"
+      });
+
+      const result = await connection.execute(
+          `
+SELECT
+    TO_CHAR(DateTimeOcc, 'YYYY-MM') AS Month,
+    VictSex AS Sex,
+    CASE
+        WHEN VictAge BETWEEN 0 AND 17 THEN '0-17'
+        WHEN VictAge BETWEEN 18 AND 30 THEN '18-30'
+        WHEN VictAge BETWEEN 31 AND 40 THEN '31-40'
+        WHEN VictAge BETWEEN 41 AND 50 THEN '41-50'
+        WHEN VictAge BETWEEN 51 AND 64 THEN '51-64'
+        WHEN VictAge > 64 THEN '65+'
+        ELSE 'Unspecified'
+    END AS AgeGroup,
+    COUNT(*) AS VictimCount
+FROM
+    cf_crime
+WHERE
+    VictAge IS NOT NULL
+    AND VictSex IS NOT NULL
+GROUP BY
+    TO_CHAR(DateTimeOcc, 'YYYY-MM'),
+    VictSex,
+    CASE
+        WHEN VictAge BETWEEN 0 AND 17 THEN '0-17'
+        WHEN VictAge BETWEEN 18 AND 30 THEN '18-30'
+        WHEN VictAge BETWEEN 31 AND 40 THEN '31-40'
+        WHEN VictAge BETWEEN 41 AND 50 THEN '41-50'
+        WHEN VictAge BETWEEN 51 AND 64 THEN '51-64'
+        WHEN VictAge > 64 THEN '65+'
+        ELSE 'Unspecified'
+    END
+ORDER BY
+    Month,
+    AgeGroup,  
+    Sex,     
+    VictimCount DESC
+          `
+      );
+
+      res.json(result.rows);
+
+
+
+  } catch (error) {
+      console.error("Error executing query:", error);
+      res.status(500).send("Error executing query");
+  } finally {
+      if (connection) {
+          try {
+              await connection.close();
+          } catch (err) {
+              console.error("Error closing connection:", err);
+          }
+      }
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 app.listen(8080, () => {
   console.log("server listening on port 8080");

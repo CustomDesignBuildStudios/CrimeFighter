@@ -2,7 +2,6 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import HomePage from "./pages/HomePage";
-import AboutPage from "./pages/AboutPage";
 import DataPage from "./pages/DataPage.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
@@ -22,13 +21,11 @@ function App() {
         <NavBar />
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/data" element={<DataPage data={{"type":"none"}} />} />
-          <Route path="/" element={<AboutPage />} />
+          <Route path="/data" element={<DataPage data={{ type: 'none' }} />} />
           <Route path="/advance" element={<AdvanceQueryPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/myreports" element={<DataPage data={{"type":"user"}} />}  />
+          <Route path="/myreports" element={<DataPage data={{ type: 'user' }} />} />
           <Route path="/myprofile" element={<MyProfile />} />
         </Routes>
         </AuthProvider>

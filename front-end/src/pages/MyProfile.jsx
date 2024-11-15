@@ -58,7 +58,9 @@ function MyProfile() {
   return (
     <div className="flex flex-col items-center justify-center h-screen">
       <h1 className="mb-4 text-4xl font-bold">My Profile</h1>
-      <div className="w-1/3 p-4 mb-6 bg-white rounded shadow-md">
+      {user != null &&
+      (
+        <div className="w-1/3 p-4 mb-6 bg-white rounded shadow-md">
         <h2 className="text-xl font-semibold">User Information</h2>
         <p className="mt-2 text-gray-700">
           <strong>First Name:</strong> {user['firstName']}
@@ -76,6 +78,8 @@ function MyProfile() {
           <strong>Biography:</strong> {user['bio'] || "N/A"}
         </p>
       </div>
+      )}
+
 
       {/* Update Information Section */}
       <h1 className="mb-4 text-2xl font-bold">Update Information</h1>

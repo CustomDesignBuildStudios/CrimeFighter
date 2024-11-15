@@ -7,6 +7,7 @@ import { GoogleMap, LoadScript, Marker, LoadScriptNext } from '@react-google-map
 import CrimeModal from '../Components/CrimeModal';
 import { useLocation } from 'react-router-dom';
 import {MarkerF} from '@react-google-maps/api'
+import { useAuth } from "../AuthContext.jsx";
 
 
 var CanvasJS = CanvasJSReact.CanvasJS;
@@ -16,13 +17,10 @@ var CanvasJSChart = CanvasJSReact.CanvasJSChart;
 function DataPage() {
   const location = useLocation();
   const [urlData, setURLData] = useState({type:"none"});
+  const { user } = useAuth();
 
   useEffect(() => {
-    // Monitor changes in location.state
-    console.log(location.state?.data)
-    if (location.state?.data) {
-      setURLData(location.state.data);
-    }
+    setURLData(location.state);
   }, [location.state]);
 
 
@@ -51,26 +49,48 @@ function DataPage() {
     setSelectedCrime(crime);
     setIsModalOpen(true);
   };
+  const createReport = () => {
+    setSelectedCrime({
+      "DR_NO": "NEW REPORT",
+      // "DATETIMEOCC": "",
+      "AREA": "",
+      "AREANAME": "",
+      "CRMCD": "946",
+      "CRMCDDESC": "OTHER MISCELLANEOUS CRIME",
+      "VICTAGE": 0,
+      "VICTSEX": "",
+      "VICTDESCENT": "",
+      "PREMISCD": 710,
+      "PREMISDESC": "OTHER PREMISE",
+      "WEAPONUSEDCD": "500",
+      "WEAPONDESC": "UNKNOWN WEAPON/OTHER WEAPON",
+      "STATUS": "IC",
+      "STATUSDESC": "Invest Cont",
+      "LOC": "",
+      "LAT": 34.0677,
+      "LON": -118.552
+  });
+    setIsModalOpen(true);
+  };
 
+  
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedCrime(null);
   };
 
   const handleSave = async (updatedCrime) => {
-    // Save updated data (call API)
-    await fetch(`/api/updateCrime/${updatedCrime.DR_NO}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updatedCrime),
-    });
+    LoadData();
     closeModal();
   };
 
   const handleDelete = async (drNo) => {
-    // Delete data (call API)
-    await fetch(`/api/deleteCrime/${drNo}`, { method: 'DELETE' });
-    closeModal();
+    // axios.post('http://localhost:8080/general-data').then((results) => {
+
+    //   closeModal();
+
+    // });
+    
   };
 
 
@@ -151,7 +171,27 @@ const crimeTypeData = {
   'THREATS':'Threats',
 
 };
+const basicCrimeTypesData = {
+  '940':'EXTORTION',
+  '888':'TRESPASSING',
+  '910':'KIDNAPPING',
+  '660':'COUNTERFEIT',
+  '113':'MANSLAUGHTER, NEGLIGENT',
+  '648':'ARSON',
+  '510':'VEHICLE - STOLEN',
+  '310':'BURGLARY',
+  '210':'ROBBERY',
+  '121':'RAPE, FORCIBLE',
 
+};
+const basicWeaponTypesData = {
+  '400':'STRONG-ARM (HANDS, FIST, FEET OR BODILY FORCE)',
+  '217':'SWORD',
+  '103':'RIFLE',
+  '102':'HAND GUN',
+  '500':'UNKNOWN WEAPON/OTHER WEAPON',
+
+};
 const statusData = {"AA":"Adult Arrest","IC":"Invest Cont","AO":"Adult Other"};
 // const weaponsData =     {"105":"GUN","115":"GUN","122":"GUN","125":"GUN","108":"GUN","116":"GUN","120":"GUN","121":"GUN","123":"GUN","111":"GUN","118":"GUN","119":"GUN","117":"GUN","124":"GUN","110":"GUN","103":"GUN","102":"GUN","106":"GUN","104":"GUN","101":"GUN","114":"GUN","109":"GUN",
 //   "516":"ANIMAL",
@@ -367,8 +407,10 @@ const weaponsData = {
 
   }
   const LoadData = (page) => {
+    console.log(urlData)
     const data = {
-      isUser:urlData['type'],
+      showUser:urlData,
+      user:user,
       orderBy:orderBy,
       groupBy:chartByType,
       type:activeTab,
@@ -659,7 +701,7 @@ const weaponsData = {
           <div>
             <div className="bg-white p-4 shadow rounded">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold">Data List</h2>
+                <h2 className="text-xl font-bold">{urlData && urlData['type'] == 'user' ? 'User Data List' : 'Data List'}</h2>
                 
                 <div className="ml-4 flex items-center">
                   <label htmlFor="orderBy" className="mr-2">Order By:</label>
@@ -738,6 +780,21 @@ const weaponsData = {
           </div>
         )}
       </div>
+
+
+            {
+              (user) ? (
+                <div className="w-full p-2">
+                  <button
+                                            onClick={() =>
+                                              createReport()
+                                            }
+                  className="w-full p-2 text-sm font-medium text-white bg-blue-500 rounded hover:bg-blue-600">
+                  Add Report
+                  </button>
+                </div>
+              ):(<div></div>)
+            }
     </div>
 
 
@@ -751,9 +808,14 @@ const weaponsData = {
                           <CrimeModal
                             isOpen={isModalOpen}
                             onClose={closeModal}
-                            crimeData={selectedCrime}
+                            data={selectedCrime}
                             onSave={handleSave}
                             onDelete={handleDelete}
+                            sexData ={genderData}
+                            descentData ={descentData}
+                            weaponData={basicWeaponTypesData}
+                            crimeData={basicCrimeTypesData}
+                            areaData={areaData}
                           />
                         )}
 
