@@ -1,13 +1,14 @@
 
 
 CREATE TABLE cf_crime(
+    AccountID NUMBER NULL,
     DR_NO NUMBER NOT NULL,
     DateRptd DATE NOT NULL,
     DateTimeOcc TIMESTAMP NOT NULL,
     Area VARCHAR2(2) NOT NULL,
-    AreaName VARCHAR2(50) NOT NULL,
+    AreaName VARCHAR2(100) NOT NULL,
     RptDistNum VARCHAR2(4) NOT NULL,
-    Part12 NUMBER NOT NULL,
+    Part12 NUMBER DEFAULT 1 NOT NULL,
     CrmCd VARCHAR2(3) NOT NULL,
     CrmCdDesc VARCHAR2(100) NOT NULL,
     Mocodes VARCHAR2(50) NULL,
@@ -15,7 +16,7 @@ CREATE TABLE cf_crime(
     VictSex VARCHAR2(1) NULL,
     VictDescent VARCHAR2(1) NULL,
     PremisCd NUMBER NULL,
-    PremisDesc VARCHAR2(50) NULL,
+    PremisDesc VARCHAR2(200) NULL,
     WeaponUsedCd VARCHAR2(3) NULL,
     WeaponDesc VARCHAR2(50) NULL,
     Status VARCHAR2(2) NULL,
@@ -30,9 +31,6 @@ CREATE TABLE cf_crime(
     lon NUMBER NOT NULL,
     PRIMARY KEY (DR_NO)
 );
-
-
-
 
 
 
@@ -67,7 +65,7 @@ CREATE TABLE cf_public_comment(
     PRIMARY KEY (CommentID)
 );
 ALTER TABLE cf_public_comment ADD CONSTRAINT CF_CommentREFAccount
-  FOREIGN KEY (AccountID) REFERENCES cf_crime(DR_NO)
+  FOREIGN KEY (AccountID) REFERENCES cf_account(AccountID)
   INITIALLY DEFERRED DEFERRABLE;
 ALTER TABLE cf_public_comment ADD CONSTRAINT CF_CommentREFCrime
   FOREIGN KEY (CrimeID) REFERENCES cf_crime(DR_NO)
@@ -83,14 +81,14 @@ ALTER TABLE cf_public_comment ADD CONSTRAINT CF_CommentREFCrime
 
 
 
-CREATE TABLE cf_police(
-    BadgeNumber NUMBER,
-    AssignedTo NUMBER,
-    PRIMARY KEY (BadgeNumber)
-);
-ALTER TABLE cf_police ADD CONSTRAINT FK_PoliceREFCrime
-  FOREIGN KEY (AssignedTo) REFERENCES cf_crime(DR_NO)
-  INITIALLY DEFERRED DEFERRABLE;
+-- CREATE TABLE cf_police(
+--     BadgeNumber NUMBER,
+--     AssignedTo NUMBER,
+--     PRIMARY KEY (BadgeNumber)
+-- );
+-- ALTER TABLE cf_police ADD CONSTRAINT FK_PoliceREFCrime
+--   FOREIGN KEY (AssignedTo) REFERENCES cf_crime(DR_NO)
+--   INITIALLY DEFERRED DEFERRABLE;
  
 
 
@@ -142,3 +140,36 @@ CREATE TABLE cf_crimetype(
     PRIMARY KEY (id)
 );
 CREATE SEQUENCE cf_crimeTypeInsert START WITH 100 INCREMENT BY 1;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ALTER TABLE cf_public_comment 
+DROP CONSTRAINT CF_CommentREFAccount;
+
+ALTER TABLE cf_public_comment ADD CONSTRAINT CF_CommentREFAccount
+  FOREIGN KEY (AccountID) REFERENCES cf_account(AccountID)
+  INITIALLY DEFERRED DEFERRABLE;
+
+-- ALTER TABLE cf_crime 
+-- ADD AccountID NUMBER;
+
+
+ALTER TABLE cf_crime ADD CONSTRAINT CF_CrimeRefAccount
+  FOREIGN KEY (AccountID) REFERENCES cf_account(AccountID)
+  INITIALLY DEFERRED DEFERRABLE;
+
+-- ALTER TABLE cf_crime
+-- MODIFY Part12 NUMBER DEFAULT 1;
+
+

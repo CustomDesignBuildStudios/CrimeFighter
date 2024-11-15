@@ -32,7 +32,7 @@ def formatDateTime(date, time):
 
 # Read the CSV file 
 inputfile = 'Crime_Data_from_2020_to_Present.csv'
-outputfile = 'Input_Data.sql'
+outputfile = 'datafile.dat'
 
 
 premiseTypes = {}
@@ -52,7 +52,7 @@ with open(inputfile, mode='r', newline='', encoding='utf-8') as csvfile, open(ou
 
 # ,LOCATION,Cross Street,LAT,LON
 
-    sqlfile.write("SET DEFINE OFF;")
+    # sqlfile.write("SET DEFINE OFF;INSERT ALL")
 
     # Loop through each row of ToyCarOrdersAndSales.csv
     for row in csvreader:
@@ -65,8 +65,7 @@ with open(inputfile, mode='r', newline='', encoding='utf-8') as csvfile, open(ou
 
         # This uses the DictReader function for each attribute. Makes it 100x easier.
         insert_command = (
-                f"INSERT INTO CF_Crime VALUES ("
-                f"{row['DR_NO']}, {formatDate(row['Date Rptd'])}, {dateTimeOcc}, '{row['AREA']}', "
+                f"'',{row['DR_NO']}, {formatDate(row['Date Rptd'])}, {dateTimeOcc}, '{row['AREA']}', "
                 f"'{turnSingleToDoubleQutoes(row['AREA NAME'])}', '{turnSingleToDoubleQutoes(row['Rpt Dist No'])}',{row['Part 1-2']}, "
                 f"'{turnSingleToDoubleQutoes(row['Crm Cd'])}', '{turnSingleToDoubleQutoes(row['Crm Cd Desc'])}','{turnSingleToDoubleQutoes(row['Mocodes'])}', "
                 f"{int(row['Vict Age'])}, '{turnSingleToDoubleQutoes(row['Vict Sex'])}','{turnSingleToDoubleQutoes(row['Vict Descent'])}', "
@@ -74,38 +73,38 @@ with open(inputfile, mode='r', newline='', encoding='utf-8') as csvfile, open(ou
                 f"'{turnSingleToDoubleQutoes(row['Weapon Desc'])}', '{turnSingleToDoubleQutoes(row['Status'])}','{turnSingleToDoubleQutoes(row['Status Desc'])}', "
                 f"'{turnSingleToDoubleQutoes(row['Crm Cd 1'])}', '{turnSingleToDoubleQutoes(row['Crm Cd 2'])}','{turnSingleToDoubleQutoes(row['Crm Cd 3'])}', "
                 f"'{turnSingleToDoubleQutoes(row['Crm Cd 4'])}', '{turnSingleToDoubleQutoes(" ".join(row['LOCATION'].split()))}','{turnSingleToDoubleQutoes(row['Cross Street'])}', "
-                f"{row['LAT']}, {row['LON']});\n"
+                f"{row['LAT']}, {row['LON']}\n"
             )
         # Write the SQL command to the output file
         sqlfile.write(insert_command)
 
-    for key, value in premiseTypes.items():
-        if(value == '' or key == ''): continue
-        insert_command = (
-                f"INSERT INTO cf_premistype VALUES (cf_premisTypeInsert.NEXTVAL,"
-                f"{turnSingleToDoubleQutoes(key)}, '{turnSingleToDoubleQutoes(value)}');\n"
-            )
-        sqlfile.write(insert_command)
+    # for key, value in premiseTypes.items():
+    #     if(value == '' or key == ''): continue
+    #     insert_command = (
+    #             f"INSERT INTO cf_premistype VALUES (cf_premisTypeInsert.NEXTVAL,"
+    #             f"{turnSingleToDoubleQutoes(key)}, '{turnSingleToDoubleQutoes(value)}');\n"
+    #         )
+    #     sqlfile.write(insert_command)
 
 
 
 
-    for key, value in crimeTypes.items():
-        if(value == '' or key == ''): continue
-        insert_command = (
-                f"INSERT INTO cf_crimetype VALUES (cf_crimeTypeInsert.NEXTVAL,"
-                f"{turnSingleToDoubleQutoes(key)}, '{turnSingleToDoubleQutoes(value)}');\n"
-            )
-        sqlfile.write(insert_command)
+    # for key, value in crimeTypes.items():
+    #     if(value == '' or key == ''): continue
+    #     insert_command = (
+    #             f"INSERT INTO cf_crimetype VALUES (cf_crimeTypeInsert.NEXTVAL,"
+    #             f"{turnSingleToDoubleQutoes(key)}, '{turnSingleToDoubleQutoes(value)}');\n"
+    #         )
+    #     sqlfile.write(insert_command)
 
 
 
-    for key, value in weaponTypes.items():
-        if(value == '' or key == ''): continue
-        insert_command = (
-                f"INSERT INTO cf_weaponType VALUES (cf_weaponTypeInsert.NEXTVAL,"
-                f"{turnSingleToDoubleQutoes(key)}, '{turnSingleToDoubleQutoes(value)}');\n"
-            )
-        sqlfile.write(insert_command)
+    # for key, value in weaponTypes.items():
+    #     if(value == '' or key == ''): continue
+    #     insert_command = (
+    #             f"INSERT INTO cf_weaponType VALUES (cf_weaponTypeInsert.NEXTVAL,"
+    #             f"{turnSingleToDoubleQutoes(key)}, '{turnSingleToDoubleQutoes(value)}');\n"
+    #         )
+    #     sqlfile.write(insert_command)
 
-    sqlfile.write("COMMIT;")
+    # sqlfile.write("SELECT * FROM dual;COMMIT;")

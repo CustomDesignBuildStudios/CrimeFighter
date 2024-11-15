@@ -1,17 +1,26 @@
+import { mysqlPassword, mysqlUser } from "./env.js";
+import express from "express";
+import cors from "cors";
+import oracledb from "oracledb";
+import moment from 'moment';
 
-import { mysqlPassword,mysqlUser } from './env.js';
-import express from 'express';
-import cors from 'cors';
-import oracledb from 'oracledb';
 
 const app = express();
 // const crimeData = require('./data.json');
 
-
 oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
 oracledb.autoCommit = true;
 
-
+// const weaponsData = {
+//     'GUN':{ title: 'Firearm', values:["105","115","122","125","108","116","120","121","123","111","118","119","117","124","110","103","102","106","104","101","114","109"] },
+//     'ANIMAL':{ title: 'Animal', values:["516"] },
+//     'VEHICLE':{ title: 'Vehicle', values:["307"] },
+//     'PHYSICAL':{ title: 'Physical Force', values:["400"] },
+//     'EXPLOSIVE':{ title: 'Explosives', values:["505"] },
+//     'OTHER':{ title: 'Other', values:[] },
+//     'MELEE':{ title: 'Melee Weapon', values:["301","200","305","205","215","223","217","214","209","308","207","211","213","210","219","514","202","221"] },
+  
+//   };
 
 
 app.use(express.json());
@@ -148,25 +157,323 @@ app.get('/', async (req, res) => {
 
         // Execute the SELECT statement
         const result = await connection.execute(
-            `SELECT * FROM CF_Crime ORDER BY VictAge ASC FETCH FIRST 5 ROWS ONLY`
+          `INSERT INTO CF_Account (AccountID, email, password,FirstName,LastName,DateCreated) VALUES (cf_accountInsert.NEXTVAL, :email, :password, :firstName, :lastName, SYSDATE)`,
+          {
+            password: password,
+            email: email,
+            firstName: firstName,
+            lastName: lastName,
+          },
+          { autoCommit: true }
         );
 
-        // Send the query result rows as a response
-        res.json(result.rows);  // `rows` contains the query results as an array of objects
-
-    } catch (error) {
+        if (result.rowsAffected == 1) {
+          res.json(true);
+        } else {
+          res.json(false);
+        }
+      }catch (error) {
         console.error("Error executing query:", error);
         res.status(500).send("Error executing query");
-    } finally {
+      } finally {
         if (connection) {
-            try {
-                await connection.close();
-            } catch (err) {
-                console.error("Error closing connection:", err);
-            }
+          try {
+            await connection.close();
+          } catch (err) {
+            console.error("Error closing connection:", err);
+          }
         }
+      }
+    });
+    
+  
+
+app.post("/login", async (req, res) => {
+  let connection;
+  try {
+    // Establish connection
+    connection = await oracledb.getConnection({
+      user: mysqlUser,
+      password: mysqlPassword,
+      connectString: "oracle.cise.ufl.edu/orcl",
+    });
+
+    const password = req.body["password"] ?? "";
+    const email = req.body["email"] ?? "";
+
+    if (password == "" || email == "") {
+      res.status(500).send("Error executing query");
+    } else {
+      const result = await connection.execute(
+        `SELECT * FROM CF_Account WHERE password=:password AND email=:email`,
+        {
+          password: password,
+          email: email,
+        }
+      );
+
+      if (result.rows.length > 0) {
+        res.json(result.rows[0]);
+      } else {
+        res.json(false);
+      }
     }
-})
+  } catch (error) {
+    console.error("Error executing query:", error);
+    res.status(500).send("Error executing query");
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error("Error closing connection:", err);
+      }
+    }
+  }
+});
+
+
+
+app.post("/profile", async (req, res) => {
+  let connection;
+  try {
+    // Establish connection
+    connection = await oracledb.getConnection({
+      user: mysqlUser,
+      password: mysqlPassword,
+      connectString: "oracle.cise.ufl.edu/orcl",
+    });
+
+    const user = req.body["user"] ?? {};
+    const FirstName = user['firstName'] ?? "";
+    const LastName = user['lastName'] ?? "";
+    const Phone = user['phone'] ?? "";
+    const Bio = user['bio'] ?? "";
+    const AccountID = user['accountId'] ?? -1;
+
+
+    console.log(user);
+    console.log(FirstName);
+    console.log(LastName);
+    console.log(Phone);
+    console.log(AccountID);
+
+    if (user== {}) {
+      res.status(500).send("Error executing query");
+    } else {
+      const result = await connection.execute(
+        `UPDATE cf_account SET FirstName=:FirstName, LastName=:LastName, Phone=:Phone, Bio=:Bio WHERE AccountID=:AccountID`,
+        {
+          FirstName: FirstName,
+          LastName: LastName,
+          Phone: Phone,
+          Bio: Bio,
+          AccountID: AccountID,
+        }
+      );
+      console.log(result);
+
+      if (result.rowsAffected > 0) {
+        res.json(user);
+      } else {
+        res.json(false);
+      }
+    }
+  } catch (error) {
+    console.error("Error executing query:", error);
+    res.status(500).send("Error executing query");
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error("Error closing connection:", err);
+      }
+    }
+  }
+});
+
+
+
+
+
+
+
+
+app.post("/get-comments", async (req, res) => {
+  let connection;
+  try {
+    // Establish connection
+    connection = await oracledb.getConnection({
+      user: mysqlUser,
+      password: mysqlPassword,
+      connectString: "oracle.cise.ufl.edu/orcl",
+    });
+
+
+    const CrimeID = req.body['CrimeID'] ?? "";
+
+
+
+    if (CrimeID=="") {
+      res.status(500).send("Error executing query");
+    } else {
+      const result = await connection.execute(
+        `SELECT cf_public_comment.UserComment,cf_account.FirstName FROM cf_public_comment JOIN cf_account ON cf_account.AccountID=cf_public_comment.AccountID WHERE CrimeID=:CrimeID ORDER BY DatePosted DESC`,
+        {
+          CrimeID: CrimeID,
+        }
+      );
+      console.log(result);
+
+      if (result.rows.length > 0) {
+        res.json(result.rows);
+      } else {
+        res.json(false);
+      }
+    }
+  } catch (error) {
+    console.error("Error executing query:", error);
+    res.status(500).send("Error executing query");
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error("Error closing connection:", err);
+      }
+    }
+  }
+});
+
+
+app.post("/add-comment", async (req, res) => {
+  let connection;
+  try {
+    // Establish connection
+    connection = await oracledb.getConnection({
+      user: mysqlUser,
+      password: mysqlPassword,
+      connectString: "oracle.cise.ufl.edu/orcl",
+    });
+
+
+    const CrimeID = req.body['CrimeID'] ?? "";
+    const AccountID = req.body['AccountID'] ?? "";
+    const UserComment = req.body['UserComment'] ?? "";
+
+
+
+    if (CrimeID=="" || AccountID=="" || UserComment=="") {
+      res.status(500).send("Error executing query");
+    } else {
+      let acc = "";
+      if(AccountID == ""){
+        acc = `AccountID=:AccountID`
+      }
+      console.log(`INSERT INTO cf_public_comment (CommentID, CrimeID, AccountID, UserComment,DatePosted) VALUES (cf_commentInsert.NEXTVAL,:CrimeID,:AccountID,:UserComment,SYSTIMESTAMP)`)
+      const result = await connection.execute(
+        `INSERT INTO cf_public_comment (CommentID, CrimeID, AccountID, UserComment,DatePosted) VALUES (cf_commentInsert.NEXTVAL,:CrimeID,:AccountID,:UserComment,SYSTIMESTAMP)`,
+        {
+          AccountID: AccountID,
+          CrimeID: CrimeID,
+          UserComment: UserComment,
+        }
+      );
+      console.log(result);
+
+      if (result.rowsAffected > 0) {
+        res.json(true);
+      } else {
+        res.json(false);
+      }
+    }
+  } catch (error) {
+    console.error("Error executing query:", error);
+    res.status(500).send("Error executing query");
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error("Error closing connection:", err);
+      }
+    }
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+app.post("/add-report", async (req, res) => {
+  let connection;
+  try {
+    // Establish connection
+    connection = await oracledb.getConnection({
+      user: mysqlUser,
+      password: mysqlPassword,
+      connectString: "oracle.cise.ufl.edu/orcl",
+    });
+
+
+   
+    if (req.body['data']==null) {
+      res.status(500).send("Error executing query");
+    } else {
+      let data = req.body['data'];
+      data['DR_NO'] = Math.floor(Date.now() / 1000);
+      data['RPTDISTNUM'] = data['AREA'] + '00';
+  
+
+
+      const columns = [...Object.keys(data), 'DateRptd', 'DateTimeOcc'].join(', ');
+      const placeholders = [...Object.keys(data).map(key => `:${key}`), 'SYSDATE', 'CURRENT_TIMESTAMP'].join(', ');
+      
+      const sql = `INSERT INTO cf_crime (${columns}) VALUES (${placeholders})`;
+      console.log(data);
+      console.log(sql);
+      const result = await connection.execute(sql, data);
+      if (result.rowsAffected > 0) {
+        res.json(true);
+      } else {
+        res.json(false);
+      }
+
+    }
+  } catch (error) {
+    console.error("Error executing query:", error);
+    res.status(500).send("Error executing query");
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error("Error closing connection:", err);
+      }
+    }
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 function transformArrayToSQLIn(arr){
@@ -179,8 +486,59 @@ function transformArrayToSQLIn(arr){
     str+=")";
     return str;
 }
-
-
+function transformAgeArrayIntoSQL(arr){
+    let str = "";
+    for (let index = 0; index < arr.length; index++) {
+        if(arr[index] == "100+"){
+            str+=`(Victage > 100) OR`;
+        }else{
+            let [start, end] = arr[index].split("-");
+            str+=`(Victage BETWEEN ${start} AND ${end}) OR`;
+        }
+        
+    }
+    str = str.substring(0, str.length - 2);
+    str+=" AND";
+    return str;
+}
+function transformWeaponArrayIntoSQL(arr){
+    if(arr.length == 1 && arr[0] == "OTHER"){
+        return "";
+    }else{
+        let str = " WeaponUsedCd IN (";
+        for (let index = 0; index < arr.length; index++) {
+            if(arr[index] == "GUN")str += `'105','115','122','125','108','116','120','121','123','111','118','119','117','124','110','103','102','106','104','101','114','109',`;
+            else if(arr[index] == "MELLE")str += `'301','200','305','205','215','223','217','214','209','308','207','211','213','210','219','514','202','221',`;
+            else if(arr[index] == "VEHICLE")str += `'307',`;
+            else if(arr[index] == "ANIMAL")str += `'516',`;
+            else if(arr[index] == "PHYSICAL")str += `'400',`;
+            else if(arr[index] == "EXPLOSIVE")str += `'505',`;
+        }
+    
+        str = str.substring(0, str.length - 1);
+        str+=") AND";
+        return str;
+    }
+}
+function transformCrimeArrayIntoSQL(arr){
+    if(arr.length == 1 && arr[0] == "OTHER"){
+        return "";
+    }else{
+        let str = "(";
+        for (let index = 0; index < arr.length; index++) {
+            if(arr[index] == "THEFT")str += `'510','330','480','343','354','341','668','420','440','441','310','331','210','662','440','442','352',`;
+            if(arr[index] == "ASSAULT")str += `'624','230',`;
+            if(arr[index] == "SEXUAL ASSAULT")str += `'821','762','860','810','815',`;
+            if(arr[index] == "EXTORTION")str += `'940',`;
+            if(arr[index] == "RAPE")str += `'121',`;
+            if(arr[index] == "ARSON")str += `'648',`;
+            if(arr[index] == "THREATS")str += `'930',`;
+        }
+        str = str.substring(0, str.length - 1);
+        str+=") AND";
+        return str;
+    }
+}
 app.post('/general-data', async (req, res) => {
     let connection;
     try {
@@ -193,11 +551,20 @@ app.post('/general-data', async (req, res) => {
 
    
         console.log(req.body);
-        const orderBy = req.body['orderBy'] ?? "DR_NO";
+        let orderBy = req.body['orderBy'] ?? "DR_NO";
+        let orderByDir = "ASC";
         const amount = parseInt(req.body['amount'] ?? 20);
         const page = parseInt(req.body['page'] ?? 0);
         const type = req.body['type'] ?? "LIST";
+        const groupBy = req.body['groupBy'] ?? "NONE";
+        let user = req.body['user'] ?? null;
+        const showUser = req.body['showUser'] ?? null;
+        if(showUser != null && showUser['type'] != 'user' ){
+          user = null;
+        }
+        console.log(user)
 
+        
         let whereStatement = "WHERE ";
 
         const occDateStart = req.body['occDateStart'] ?? "";
@@ -213,13 +580,18 @@ app.post('/general-data', async (req, res) => {
         const status = req.body['status'] ?? [];
         if(status.length > 0){whereStatement += " Status IN " + transformArrayToSQLIn(status) + " AND";}
         const crime = req.body['crime'] ?? [];
-        if(crime.length > 0){whereStatement += " CrmCd IN " + transformArrayToSQLIn(crime) + " AND";}
+        if(crime.length > 0){whereStatement += " CrmCd IN " + transformCrimeArrayIntoSQL(crime);}
         const premis = req.body['premis'] ?? [];
         if(premis.length > 0){whereStatement += " PremisCd IN " + transformArrayToSQLIn(premis) + " AND";}
-        const gender = req.body['gender'] ?? "";
+        const gender = req.body['gender'] ?? [];
         if(gender.length > 0){whereStatement += " VictSex IN " + transformArrayToSQLIn(gender) + " AND";}
+        const age = req.body['age'] ?? [];
+        if(age.length > 0){whereStatement += transformAgeArrayIntoSQL(age);}
+        const weapon = req.body['weapon'] ?? [];
+        if(weapon.length > 0){whereStatement += transformWeaponArrayIntoSQL(weapon);}
+        if(user != null){whereStatement += ` AccountID = ${user['accountId']} AND`}
 
-
+        console.log(whereStatement);
         if (whereStatement.endsWith("AND")) {
             whereStatement = whereStatement.slice(0, -3); 
         }
@@ -228,6 +600,27 @@ app.post('/general-data', async (req, res) => {
         }
         console.log(whereStatement);
 
+
+        if(type != "MAP"){
+            if(orderBy == "DATERPTD_DESC"){
+                orderBy = "DATERPTD";
+                orderByDir = "DESC";
+            }
+            else if(orderBy == "DATERPTD_ASC"){
+                orderBy = "DATERPTD";
+                orderByDir = "ASC";
+            }
+            else if(orderBy == "DATEOCC_DESC"){
+                orderBy = "DATETIMEOCC";
+                orderByDir = "DESC";
+            }
+            else{
+                orderBy = "DATETIMEOCC";
+                orderByDir = "ASC";
+            }
+        }
+
+
         if(type=="MAP"){
             const result = await connection.execute(
                 `SELECT Area, COUNT(*) AS CrimeCount FROM CF_Crime `+whereStatement+ ` GROUP BY Area`
@@ -235,17 +628,96 @@ app.post('/general-data', async (req, res) => {
     
             res.json({type:type,results:result.rows});
         }else{
-            const validColumns = ['DR_NO','VictSex','VictSex','VictAge']; 
+            const validColumns = ['DR_NO','DATETIMEOCC','DATERPTD']; 
             if (!validColumns.includes(orderBy)) {
                 return res.status(400).send("Invalid column name for ordering");
             }
+
+            let selectVars = "*";
+            let groupStatement = "";
+            let orderAndLimitStatement = "";
+            if(type=="CHART"){
+                if(groupBy == "WEAPONUSEDCD"){
+                    selectVars = `
+                    CASE 
+                    WHEN `+groupBy+` IN ('105','115','122','125','108','116','120','121','123','111','118','119','117','124','110','103','102','106','104','101','114','109') THEN 'GUN'
+                    WHEN `+groupBy+` IN ('301','200','305','205','215','223','217','214','209','308','207','211','213','210','219','514','202','221') THEN 'MELLE'
+                    WHEN `+groupBy+` IN ('307') THEN 'VEHICLE'
+                    WHEN `+groupBy+` IN ('516') THEN 'ANIMAL'
+                    WHEN `+groupBy+` IN ('400') THEN 'PHYSICAL'
+                    WHEN `+groupBy+` IN ('505') THEN 'EXPLOSIVE'
+                    ELSE 'OTHER'
+                    END AS LABEL, COUNT(*) AS COLCOUNT
+                    `;
+                    groupStatement = ` GROUP BY CASE 
+                    WHEN `+groupBy+` IN ('105','115','122','125','108','116','120','121','123','111','118','119','117','124','110','103','102','106','104','101','114','109') THEN 'GUN'
+                    WHEN `+groupBy+` IN ('301','200','305','205','215','223','217','214','209','308','207','211','213','210','219','514','202','221') THEN 'MELLE'
+                    WHEN `+groupBy+` IN ('307') THEN 'VEHICLE'
+                    WHEN `+groupBy+` IN ('516') THEN 'ANIMAL'
+                    WHEN `+groupBy+` IN ('400') THEN 'PHYSICAL'
+                    WHEN `+groupBy+` IN ('505') THEN 'EXPLOSIVE'
+                    ELSE 'OTHER'
+                    END`;
+
+                }
+                else if(groupBy == "CRMCD"){
+                    selectVars = `
+                    CASE 
+                    WHEN `+groupBy+` IN ('510','330','480','343','354','341','668','420','440','441','310','331','210','662','440','442','352') THEN 'THEFT'
+                    WHEN `+groupBy+` IN ('624','230') THEN 'ASSAULT'
+                    WHEN `+groupBy+` IN ('821','762','860','810','815') THEN 'SEXUAL ASSAULT'
+                    WHEN `+groupBy+` IN ('940') THEN 'EXTORTION'
+                    WHEN `+groupBy+` IN ('121') THEN 'RAPE'
+                    WHEN `+groupBy+` IN ('648') THEN 'ARSON'
+                    WHEN `+groupBy+` IN ('930') THEN 'THREATS'
+                    ELSE 'OTHER'
+                    END AS LABEL, COUNT(*) AS COLCOUNT
+                    `;
+                    groupStatement = ` GROUP BY CASE 
+                    WHEN `+groupBy+` IN ('510','330','480','343','354','341','668','420','440','441','310','331','210','662','440','442','352') THEN 'THEFT'
+                    WHEN `+groupBy+` IN ('624','230') THEN 'ASSAULT'
+                    WHEN `+groupBy+` IN ('821','762','860','810','815') THEN 'SEXUAL ASSAULT'
+                    WHEN `+groupBy+` IN ('940') THEN 'EXTORTION'
+                    WHEN `+groupBy+` IN ('121') THEN 'RAPE'
+                    WHEN `+groupBy+` IN ('648') THEN 'ARSON'
+                    WHEN `+groupBy+` IN ('930') THEN 'THREATS'
+                    ELSE 'OTHER'
+                    END`;
+
+                }else if(groupBy == "VICTAGE"){
+                    selectVars = `
+                    CASE 
+                    WHEN `+groupBy+` BETWEEN 0 AND 20 THEN '0-20'
+                    WHEN `+groupBy+` BETWEEN 21 AND 40 THEN '21-40'
+                    WHEN `+groupBy+` BETWEEN 41 AND 60 THEN '41-60'
+                    WHEN `+groupBy+` BETWEEN 61 AND 80 THEN '61-80'
+                    WHEN `+groupBy+` BETWEEN 81 AND 100 THEN '81-100'
+                    ELSE '100+'
+                    END AS LABEL, COUNT(*) AS COLCOUNT
+                    `;
+                    groupStatement = ` GROUP BY CASE 
+                    WHEN `+groupBy+` BETWEEN 0 AND 20 THEN '0-20'
+                    WHEN `+groupBy+` BETWEEN 21 AND 40 THEN '21-40'
+                    WHEN `+groupBy+` BETWEEN 41 AND 60 THEN '41-60'
+                    WHEN `+groupBy+` BETWEEN 61 AND 80 THEN '61-80'
+                    WHEN `+groupBy+` BETWEEN 81 AND 100 THEN '81-100'
+                    ELSE '100+'
+                    END`;
+
+                }else{
+                    selectVars = groupBy + " AS LABEL,COUNT(" + groupBy + ") AS COLCOUNT";
+                    groupStatement = " GROUP BY "+groupBy + " ";
+                }
+
+
+            }else{
+                orderAndLimitStatement = `ORDER BY ${orderBy} ${orderByDir} OFFSET ${(page*amount)} ROWS FETCH NEXT ${amount} ROWS ONLY`
+            }
+
+            console.log(`SELECT `+selectVars+` FROM CF_Crime `+whereStatement+ ` `+groupStatement+` `+orderAndLimitStatement)
     
             const result = await connection.execute(
-                `SELECT * FROM CF_Crime `+whereStatement+ ` ORDER BY ${orderBy} ASC OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY`,
-                {
-                    offset: (page*amount),
-                    limit: amount
-                }
+                `SELECT `+selectVars+` FROM CF_Crime `+whereStatement+ ` `+groupStatement+` `+orderAndLimitStatement
             );
     
             // Send the query result rows as a response
@@ -278,7 +750,7 @@ app.post('/general-data', async (req, res) => {
 
 
 
-app.get('/advance/area-density', async (req, res) => {
+app.post('/advance/area-crime', async (req, res) => {
     let connection;
     try {
         // Establish connection
@@ -289,19 +761,19 @@ app.get('/advance/area-density', async (req, res) => {
         });
 
         const result = await connection.execute(
-            `SELECT
+            `
+            SELECT
                 TO_CHAR(DateTimeOcc, 'YYYY-MM') AS Month,
-                COUNT(*) AS CrimeCount
+                AreaName,
+                COUNT(*) AS SevereCrimeCount
             FROM
                 cf_crime
             WHERE
-                AreaName = :area_name
-                AND
-                EXTRACT(YEAR FROM DateTimeOcc) = :year
-            GROUP BY
-                TO_CHAR(DateTimeOcc, 'YYYY-MM')
-            ORDER BY
-                Month;`
+                CrmCd IN ('230', '821', '121', '113', '435', '822', '921', '865', '943', '812', '235', '840', '860', '110', '814', '648')
+                AND EXTRACT(YEAR FROM DateTimeOcc) = 2020
+            GROUP BY TO_CHAR(DateTimeOcc, 'YYYY-MM'),AreaName
+            ORDER BY Month, SevereCrimeCount DESC
+            `
         );
 
         res.json(result.rows);
@@ -322,6 +794,94 @@ app.get('/advance/area-density', async (req, res) => {
     }
 });
 
+
+
+
+app.post('/advance/gender-time', async (req, res) => {
+  let connection;
+  try {
+      // Establish connection
+      connection = await oracledb.getConnection({
+          user: mysqlUser,
+          password: mysqlPassword,
+          connectString: "oracle.cise.ufl.edu/orcl"
+      });
+
+      const result = await connection.execute(
+          `
+SELECT
+    TO_CHAR(DateTimeOcc, 'YYYY-MM') AS Month,
+    VictSex AS Sex,
+    CASE
+        WHEN VictAge BETWEEN 0 AND 17 THEN '0-17'
+        WHEN VictAge BETWEEN 18 AND 30 THEN '18-30'
+        WHEN VictAge BETWEEN 31 AND 40 THEN '31-40'
+        WHEN VictAge BETWEEN 41 AND 50 THEN '41-50'
+        WHEN VictAge BETWEEN 51 AND 64 THEN '51-64'
+        WHEN VictAge > 64 THEN '65+'
+        ELSE 'Unspecified'
+    END AS AgeGroup,
+    COUNT(*) AS VictimCount
+FROM
+    cf_crime
+WHERE
+    VictAge IS NOT NULL
+    AND VictSex IS NOT NULL
+GROUP BY
+    TO_CHAR(DateTimeOcc, 'YYYY-MM'),
+    VictSex,
+    CASE
+        WHEN VictAge BETWEEN 0 AND 17 THEN '0-17'
+        WHEN VictAge BETWEEN 18 AND 30 THEN '18-30'
+        WHEN VictAge BETWEEN 31 AND 40 THEN '31-40'
+        WHEN VictAge BETWEEN 41 AND 50 THEN '41-50'
+        WHEN VictAge BETWEEN 51 AND 64 THEN '51-64'
+        WHEN VictAge > 64 THEN '65+'
+        ELSE 'Unspecified'
+    END
+ORDER BY
+    Month,
+    AgeGroup,  
+    Sex,     
+    VictimCount DESC
+          `
+      );
+
+      res.json(result.rows);
+
+
+
+  } catch (error) {
+      console.error("Error executing query:", error);
+      res.status(500).send("Error executing query");
+  } finally {
+      if (connection) {
+          try {
+              await connection.close();
+          } catch (err) {
+              console.error("Error closing connection:", err);
+          }
+      }
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 app.listen(8080, () => {
-      console.log('server listening on port 8080')
-})
+  console.log("server listening on port 8080");
+});
