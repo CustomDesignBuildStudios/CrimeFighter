@@ -898,7 +898,7 @@ SELECT
     CrmCdDesc AS CrimeType,
     COUNT(*) AS CrimeCount
 FROM
-    cf_crime
+    "ANDREW.BALLARD".cf_crime
 WHERE
     EXTRACT(YEAR FROM DateTimeOcc) = ${year}
     AND
@@ -908,7 +908,7 @@ GROUP BY
     CrmCdDesc
 ORDER BY
     Month,
-    CrimeCount DESC;
+    CrimeCount DESC
           `
       );
 

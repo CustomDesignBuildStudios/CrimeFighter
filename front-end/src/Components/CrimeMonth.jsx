@@ -24,8 +24,8 @@ function CrimeMonthQuery() {
 
       // Prepare data for CanvasJS
       const formattedData = response.data.map((item) => ({
-        label: item.CrimeType,
-        y: item.CrimeCount,
+        label: item.CRIMETYPE,
+        y: item.CRIMECOUNT,
       }));
 
       setChartData(formattedData);
@@ -43,6 +43,8 @@ function CrimeMonthQuery() {
   const options = {
     animationEnabled: true,
     theme: "light2",
+    maintainAspectRatio: false,
+    aspectRatio: 1,
     title: {
       text: `Crime Trends for ${selectedDate.getFullYear()}-${(
         selectedDate.getMonth() + 1
@@ -87,9 +89,9 @@ function CrimeMonthQuery() {
       {isLoading ? (
         <p>Loading...</p>
       ) : chartData.length > 0 ? (
-        <div className="w-full max-w-4xl">
-          <CanvasJSChart options={options} />
-        </div>
+<div className="w-full max-w-4xl h-[800px]">
+  <CanvasJSChart height="700px" options={options} className="w-full max-w-4xl h-[800px]" />
+</div>
       ) : (
         <p>No data available for the selected month.</p>
       )}
