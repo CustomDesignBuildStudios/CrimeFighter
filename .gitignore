@@ -2,3 +2,5 @@ node_modules
 server/env.js
 Database/Crime_Data_from_2020_to_Present.csv
 Database/Input_Data.sql
+.vscode/*
+!.vscode/extensions.json

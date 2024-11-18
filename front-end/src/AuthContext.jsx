@@ -32,11 +32,11 @@ export function AuthProvider({ children }) {
   const logout = () => {
     setUser(null);
     localStorage.removeItem("user"); // removes users local data after logout
-    navigate("/about");
+    navigate("/");
   };
 
   return (
-    <AuthContext.Provider value={{ user, login,setUser, logout }}>
+    <AuthContext.Provider value={{ user, login, setUser, logout }}>
       {children}
     </AuthContext.Provider>
   );
