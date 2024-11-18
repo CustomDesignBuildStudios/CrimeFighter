@@ -190,7 +190,12 @@ function DataPage() {
     AA: "Adult Arrest",
     IC: "Invest Cont",
     AO: "Adult Other",
+    CC: "UNK",
+    JO: "Juv Other",
+    JA: "Juv Arrest",
   };
+
+
   // const weaponsData =     {"105":"GUN","115":"GUN","122":"GUN","125":"GUN","108":"GUN","116":"GUN","120":"GUN","121":"GUN","123":"GUN","111":"GUN","118":"GUN","119":"GUN","117":"GUN","124":"GUN","110":"GUN","103":"GUN","102":"GUN","106":"GUN","104":"GUN","101":"GUN","114":"GUN","109":"GUN",
   //   "516":"ANIMAL",
   //   "307":"VEHICLE",
@@ -368,44 +373,51 @@ function DataPage() {
       let data = {};
       for (let index = 0; index < results.length; index++) {
         total += results[index]["COLCOUNT"];
-        console.log(results[index]["COLCOUNT"]);
-        console.log(results[index]["LABEL"]); // this should be the name of the label in pie graph
-        console.log(total);
       }
       for (let index = 0; index < results.length; index++) {
+        let val = columns[results[index]["LABEL"]];
+ 
+        if(typeof val === 'undefined'){
+          val = results[index]["LABEL"];
+        }
+
         data[results[index]["LABEL"]] = {
           y: parseFloat(
             ((results[index]["COLCOUNT"] / total) * 100).toFixed(1)
           ),
-          label: results[index]["LABEL"],
+          label: val,
         };
+
+
+
       }
       console.log(data);
       setChartData(Object.values(data));
-    } else if (chartType == "column") {
-      let data = {};
-      for (let index = 0; index < results.length; index++) {
-        data[results[index]["LABEL"]] = {
-          y: results[index]["COLCOUNT"],
-          label: results[index]["LABEL"],
-        };
-      }
-      console.log(results);
-      console.log(data);
-      setChartData(Object.values(data));
-    } else if (chartType == "line") {
-      let newData = [];
-      results.sort((a, b) => a.LABEL - b.LABEL);
+    } 
+    // else if (chartType == "column") {
+    //   let data = {};
+    //   for (let index = 0; index < results.length; index++) {
+    //     data[results[index]["LABEL"]] = {
+    //       y: results[index]["COLCOUNT"],
+    //       label: results[index]["LABEL"],
+    //     };
+    //   }
+    //   console.log(results);
+    //   console.log(data);
+    //   setChartData(Object.values(data));
+    // } else if (chartType == "line") {
+    //   let newData = [];
+    //   results.sort((a, b) => a.LABEL - b.LABEL);
 
-      for (let index = 0; index < results.length; index++) {
-        newData.push({
-          x: results[index]["LABEL"],
-          y: results[index]["COLCOUNT"],
-        });
-      }
+    //   for (let index = 0; index < results.length; index++) {
+    //     newData.push({
+    //       x: results[index]["LABEL"],
+    //       y: results[index]["COLCOUNT"],
+    //     });
+    //   }
 
-      setChartData(Object.values(newData));
-    }
+    //   setChartData(Object.values(newData));
+    // }
   };
   const LoadData = (page) => {
     console.log(urlData);

@@ -29,8 +29,8 @@ const areaData = [
 ];
 function CrimeAreaTimeQuery() {
   const [crimeData, setCrimeData] = useState([]);
-  const [area, setArea] = useState(2020); // State for selected area
-  const [year, setYear] = useState("Central"); // State for selected year
+  const [area, setArea] = useState("Central"); // State for selected area
+  const [year, setYear] = useState(2020); // State for selected year
 
 
 

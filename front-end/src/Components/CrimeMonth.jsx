@@ -79,17 +79,11 @@ function CrimeMonthQuery() {
           showMonthYearPicker
           className="p-2 border rounded-md"
         />
-        <button
-          onClick={fetchData}
-          className="ml-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Fetch Data
-        </button>
       </div>
       {isLoading ? (
         <p>Loading...</p>
       ) : chartData.length > 0 ? (
-<div className="w-full max-w-4xl h-[800px]">
+<div className="w-full h-[800px]">
   <CanvasJSChart height="700px" options={options} className="w-full max-w-4xl h-[800px]" />
 </div>
       ) : (
