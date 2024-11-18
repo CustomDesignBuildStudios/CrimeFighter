@@ -1,27 +1,41 @@
-import { useState, useEffect } from "react";
-import axios from 'axios';
-import CanvasJSReact from '@canvasjs/react-charts'; 
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import { GoogleMap, LoadScript, Marker, LoadScriptNext } from '@react-google-maps/api';
-import GenderTimeQuery from '../Components/GenderTime'
-import AreaTimeQuery from '../Components/AreaTime'
-
-var CanvasJS = CanvasJSReact.CanvasJS;
-var CanvasJSChart = CanvasJSReact.CanvasJSChart;
-
+import React, { useState } from 'react';
+import GenderTimeQuery from '../Components/GenderTime';
+import AreaTimeQuery from '../Components/AreaTime';
 
 function AdvanceQueryPage() {
-
-
+  const [activeTab, setActiveTab] = useState('gender');
 
   return (
+    <div className="p-4">
+      {/* Tab Buttons */}
+      <div className="flex border-b border-gray-200 mb-4">
+        <button
+          className={`px-4 py-2 font-medium ${
+            activeTab === 'gender'
+              ? 'text-blue-500 border-b-2 border-blue-500'
+              : 'text-gray-600 hover:text-blue-500'
+          }`}
+          onClick={() => setActiveTab('gender')}
+        >
+          Gender Time Query
+        </button>
+        <button
+          className={`px-4 py-2 font-medium ${
+            activeTab === 'area'
+              ? 'text-blue-500 border-b-2 border-blue-500'
+              : 'text-gray-600 hover:text-blue-500'
+          }`}
+          onClick={() => setActiveTab('area')}
+        >
+          Area Time Query
+        </button>
+      </div>
 
-
-    <div>
-      <GenderTimeQuery />
-      <AreaTimeQuery />
- 
+      {/* Tab Content */}
+      <div>
+        {activeTab === 'gender' && <GenderTimeQuery />}
+        {activeTab === 'area' && <AreaTimeQuery />}
+      </div>
     </div>
   );
 }
