@@ -1,10 +1,10 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEyeSlash, faEye } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
-import axios from 'axios';
+import axios from "axios";
 import { useState } from "react";
 import { InputField } from "../Components/InputField";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthContext";
 
 function Login() {
@@ -14,10 +14,22 @@ function Login() {
   const [password, setPassword] = useState("");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState({});
 
   async function handleLogin(event) {
     event.preventDefault();
-    if (!email || !password) return;
+    const newErrors = {};
+
+    // Validate fields
+    if (!email) newErrors.email = "Email is required";
+    if (!password) newErrors.password = "Password is required";
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors); // Set errors if validation fails
+      return;
+    } else {
+      setErrors({});
+    }
     try {
       setIsLoading(true);
 
@@ -55,6 +67,7 @@ function Login() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
+        {errors.email && <p className="text-xs text-red-500">{errors.email}</p>}
 
         <div className="relative mb-4">
           <label
@@ -74,6 +87,9 @@ function Login() {
               onClick={() => setIsPasswordVisible(!isPasswordVisible)}
             />
           </InputField>
+          {errors.password && (
+            <p className="text-xs text-red-500">{errors.password}</p>
+          )}
         </div>
 
         <div className="flex justify-between mb-4">
