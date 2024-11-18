@@ -369,7 +369,7 @@ function DataPage() {
       for (let index = 0; index < results.length; index++) {
         total += results[index]["COLCOUNT"];
         console.log(results[index]["COLCOUNT"]);
-        console.log(results[index]["LABEL"]); // this should be the name of the label in pie graph
+        console.log(results[index]["LABEL"]);
         console.log(total);
       }
       for (let index = 0; index < results.length; index++) {
