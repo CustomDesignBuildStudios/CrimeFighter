@@ -72,7 +72,29 @@ app.post('/register', async (req, res) => {
 
 
                 if(result.rowsAffected == 1){
-                    res.json(true); 
+
+                  
+                  if(password == "" || email == ""){
+                    res.status(500).send("Error executing query");
+                  }else{
+                      const result = await connection.execute(
+                          `SELECT * FROM "ANDREW.BALLARD".CF_Account WHERE password=:password AND email=:email`,
+                          {
+                              password: password,
+                              email: email
+                          }
+                      );
+              
+                      if(result.rows.length > 0){
+                          res.json(result.rows[0]);
+                      }else{
+                          res.json(false);
+                      }
+                  }
+
+
+
+
                 }else{
                     res.json(false); 
                 }

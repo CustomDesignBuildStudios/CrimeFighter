@@ -28,6 +28,7 @@ function Login() {
 
       if (response.data) {
         console.log("Successfully logged in", response.data);
+        localStorage.setItem("user", JSON.stringify(response.data));
         login(response.data); // Set user data in context
         navigate("/myprofile");
       } else {

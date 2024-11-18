@@ -278,7 +278,7 @@ const CrimeModal = ({ isOpen, onClose, data, onSave, onDelete, sexData, descentD
               </button>
               <button
                 type="button"
-                onClick={toggleEditMode}
+                onClick={onClose}
                 className="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600"
               >
                 Cancel

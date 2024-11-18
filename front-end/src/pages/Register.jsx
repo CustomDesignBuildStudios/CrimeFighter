@@ -5,8 +5,11 @@ import axios from 'axios';
 import { useState } from "react";
 import { InputField } from "../Components/InputField";
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from "../AuthContext";
 
 function Register() {
+  const { login } = useAuth();
+
   const navigate = useNavigate();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -29,11 +32,14 @@ function Register() {
           lastName: lastName,
         })
         .then((results) => {
-          console.log(results);
+          if (results.data) {
+            console.log("Successfully logged in", results.data);
+            localStorage.setItem("user", JSON.stringify(results.data));
 
-          if (results.data != false) {
+            login(results.data); // Set user data in context
             navigate("/myprofile");
           } else {
+            alert("Error: Either the email or password is incorrect/not a user.");
           }
         });
     } catch (error) {
