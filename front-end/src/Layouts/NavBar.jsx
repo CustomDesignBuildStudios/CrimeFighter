@@ -56,9 +56,14 @@ function NavBar() {
               </button>
             </>
           ) : (
+            <>
             <Link to="/login" className="hover:text-gray-900 hover:underline">
               Login
             </Link>
+            <Link to="/register" className="hover:text-gray-900 hover:underline">
+              Register
+            </Link>     
+            </>
           )}
         </nav>
       </div>

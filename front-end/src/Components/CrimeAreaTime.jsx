@@ -32,6 +32,11 @@ function CrimeAreaTimeQuery() {
   const [area, setArea] = useState("Central"); // State for selected area
   const [year, setYear] = useState(2020); // State for selected year
 
+
+
+
+
+
   useEffect(() => {
     const fetchCrimeData = async () => {
       try {

@@ -13,6 +13,7 @@ import CrimeModal from "../Components/CrimeModal";
 import { useLocation } from "react-router-dom";
 import { MarkerF } from "@react-google-maps/api";
 import { useAuth } from "../AuthContext.jsx";
+import Spinner from "../Components/Spinner.jsx";
 
 var CanvasJS = CanvasJSReact.CanvasJS;
 var CanvasJSChart = CanvasJSReact.CanvasJSChart;
@@ -21,6 +22,7 @@ function DataPage() {
   const location = useLocation();
   const [urlData, setURLData] = useState({ type: "none" });
   const { user } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     setURLData(location.state);
@@ -190,7 +192,11 @@ function DataPage() {
     AA: "Adult Arrest",
     IC: "Invest Cont",
     AO: "Adult Other",
+    CC: "UNK",
+    JO: "Juv Other",
+    JA: "Juv Arrest",
   };
+
   // const weaponsData =     {"105":"GUN","115":"GUN","122":"GUN","125":"GUN","108":"GUN","116":"GUN","120":"GUN","121":"GUN","123":"GUN","111":"GUN","118":"GUN","119":"GUN","117":"GUN","124":"GUN","110":"GUN","103":"GUN","102":"GUN","106":"GUN","104":"GUN","101":"GUN","114":"GUN","109":"GUN",
   //   "516":"ANIMAL",
   //   "307":"VEHICLE",
@@ -368,46 +374,51 @@ function DataPage() {
       let data = {};
       for (let index = 0; index < results.length; index++) {
         total += results[index]["COLCOUNT"];
-        console.log(results[index]["COLCOUNT"]);
-        console.log(results[index]["LABEL"]);
-        console.log(total);
       }
       for (let index = 0; index < results.length; index++) {
+        let val = columns[results[index]["LABEL"]];
+
+        if (typeof val === "undefined") {
+          val = results[index]["LABEL"];
+        }
+
         data[results[index]["LABEL"]] = {
           y: parseFloat(
             ((results[index]["COLCOUNT"] / total) * 100).toFixed(1)
           ),
-          label: results[index]["LABEL"],
+          label: val,
         };
       }
       console.log(data);
       setChartData(Object.values(data));
-    } else if (chartType == "column") {
-      let data = {};
-      for (let index = 0; index < results.length; index++) {
-        data[results[index]["LABEL"]] = {
-          y: results[index]["COLCOUNT"],
-          label: results[index]["LABEL"],
-        };
-      }
-      console.log(results);
-      console.log(data);
-      setChartData(Object.values(data));
-    } else if (chartType == "line") {
-      let newData = [];
-      results.sort((a, b) => a.LABEL - b.LABEL);
-
-      for (let index = 0; index < results.length; index++) {
-        newData.push({
-          x: results[index]["LABEL"],
-          y: results[index]["COLCOUNT"],
-        });
-      }
-
-      setChartData(Object.values(newData));
     }
+    // else if (chartType == "column") {
+    //   let data = {};
+    //   for (let index = 0; index < results.length; index++) {
+    //     data[results[index]["LABEL"]] = {
+    //       y: results[index]["COLCOUNT"],
+    //       label: results[index]["LABEL"],
+    //     };
+    //   }
+    //   console.log(results);
+    //   console.log(data);
+    //   setChartData(Object.values(data));
+    // } else if (chartType == "line") {
+    //   let newData = [];
+    //   results.sort((a, b) => a.LABEL - b.LABEL);
+
+    //   for (let index = 0; index < results.length; index++) {
+    //     newData.push({
+    //       x: results[index]["LABEL"],
+    //       y: results[index]["COLCOUNT"],
+    //     });
+    //   }
+
+    //   setChartData(Object.values(newData));
+    // }
   };
   const LoadData = (page) => {
+    setIsLoading(true);
     console.log(urlData);
     const data = {
       showUser: urlData,
@@ -430,32 +441,46 @@ function DataPage() {
       gender: selectedGenderOptions,
     };
 
-    axios.post("http://localhost:8080/general-data", data).then((results) => {
-      console.log(results.data);
-      // let total = 0;
-      setListData(results.data["results"]);
+    axios
+      .post("http://localhost:8080/general-data", data)
+      .then((results) => {
+        console.log(results.data);
+        // let total = 0;
+        setListData(results.data["results"]);
 
-      if (results.data["type"] == "LIST") {
-      } else if (results.data["type"] == "MAP") {
-        let min = 9999999;
-        let max = 0;
-        for (let index = 0; index < results.data["results"].length; index++) {
-          if (results.data["results"][index]["CRIMECOUNT"] > max) {
-            max = results.data["results"][index]["CRIMECOUNT"];
+        if (results.data["type"] == "LIST") {
+        } else if (results.data["type"] == "MAP") {
+          let min = 9999999;
+          let max = 0;
+          for (let index = 0; index < results.data["results"].length; index++) {
+            if (results.data["results"][index]["CRIMECOUNT"] > max) {
+              max = results.data["results"][index]["CRIMECOUNT"];
+            }
+            if (results.data["results"][index]["CRIMECOUNT"] < min) {
+              min = results.data["results"][index]["CRIMECOUNT"];
+            }
           }
-          if (results.data["results"][index]["CRIMECOUNT"] < min) {
-            min = results.data["results"][index]["CRIMECOUNT"];
-          }
+          setMapData({ min: min, max: max, data: results.data["results"] });
+        } else if (results.data["type"] === "CHART") {
+          LoadChart(results.data["results"]);
         }
-        setMapData({ min: min, max: max, data: results.data["results"] });
-      } else if (results.data["type"] == "CHART") {
-        LoadChart(results.data["results"]);
-      }
-    });
+      })
+      .catch((error) => {
+        console.error("Error loading data:", error);
+      })
+      .finally(() => {
+        setIsLoading(false); // End loading, regardless of success or failure
+      });
   };
 
   return (
     <div className="flex">
+      {isLoading ? (
+        <div className="absolute top-0 left-0 flex items-center justify-center w-full h-full bg-gray-900 bg-opacity-50">
+          <Spinner />
+        </div>
+      ) : null}
+
       <div className="flex flex-col p-4 text-white bg-gray-800 w-124">
         <h2 className="mb-4 text-lg font-semibold">Filters</h2>
         {/* <button onClick={() => apiCall("SEX")} className="px-4 py-2 mb-2 bg-gray-700 rounded hover:bg-gray-600">Pie Victim Sex</button>
@@ -631,7 +656,6 @@ function DataPage() {
           Update
         </button>
       </div>
-
       <div className="w-full">
         {/* Tab Buttons */}
         <div className="flex border-b border-gray-300">
@@ -821,7 +845,6 @@ function DataPage() {
           <div></div>
         )}
       </div>
-
       {/* Modal */}
       {isModalOpen && (
         <CrimeModal

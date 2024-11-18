@@ -15,3 +15,10 @@
 
 -- ALTER TABLE cf_crime
 -- MODIFY Part12 NUMBER DEFAULT 1;
+
+
+-- SELECT * FROM "ANDREW.BALLARD".cf_crime WHERE Status='CC' FETCH NEXT 20 ROWS ONLY;
+
+-- Juv Other
+-- Juv Arrest
+-- UNK
