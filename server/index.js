@@ -909,6 +909,7 @@ GROUP BY
 ORDER BY
     Month,
     CrimeCount DESC
+FETCH NEXT 20 ROWS ONLY
           `
       );
 
@@ -966,6 +967,7 @@ GROUP BY
 ORDER BY
     Hour,
     CrimeCount DESC
+FETCH NEXT 20 ROWS ONLY
           `
       );
 
