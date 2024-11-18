@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import GenderTimeQuery from '../Components/GenderTime';
 import AreaTimeQuery from '../Components/AreaTime';
+import CrimeMonthQuery from '../Components/CrimeMonth';
 
 function AdvanceQueryPage() {
   const [activeTab, setActiveTab] = useState('gender');
@@ -29,12 +30,23 @@ function AdvanceQueryPage() {
         >
           Area Time Query
         </button>
+        <button
+          className={`px-4 py-2 font-medium ${
+            activeTab === 'crime-month'
+              ? 'text-blue-500 border-b-2 border-blue-500'
+              : 'text-gray-600 hover:text-blue-500'
+          }`}
+          onClick={() => setActiveTab('crime-month')}
+        >
+          Crime Month Query
+        </button>
       </div>
 
       {/* Tab Content */}
       <div>
         {activeTab === 'gender' && <GenderTimeQuery />}
         {activeTab === 'area' && <AreaTimeQuery />}
+        {activeTab === 'crime-month' && <CrimeMonthQuery />}
       </div>
     </div>
   );

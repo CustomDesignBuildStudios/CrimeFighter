@@ -876,6 +876,60 @@ ORDER BY
 
 
 
+app.post('/advance/crime-month', async (req, res) => {
+  let connection;
+  try {
+      // Establish connection
+      connection = await oracledb.getConnection({
+          user: mysqlUser,
+          password: mysqlPassword,
+          connectString: "oracle.cise.ufl.edu/orcl"
+      });
+
+
+      const year = parseInt(req.body['year'] ?? 2020);
+      const month = parseInt(req.body['month'] ?? 1);
+
+
+      const result = await connection.execute(
+          `
+SELECT
+    TO_CHAR(DateTimeOcc, 'YYYY-MM') AS Month,
+    CrmCdDesc AS CrimeType,
+    COUNT(*) AS CrimeCount
+FROM
+    cf_crime
+WHERE
+    EXTRACT(YEAR FROM DateTimeOcc) = ${year}
+    AND
+    EXTRACT(MONTH FROM DateTimeOcc) = ${month}
+GROUP BY
+    TO_CHAR(DateTimeOcc, 'YYYY-MM'),
+    CrmCdDesc
+ORDER BY
+    Month,
+    CrimeCount DESC;
+          `
+      );
+
+      res.json(result.rows);
+
+
+
+  } catch (error) {
+      console.error("Error executing query:", error);
+      res.status(500).send("Error executing query");
+  } finally {
+      if (connection) {
+          try {
+              await connection.close();
+          } catch (err) {
+              console.error("Error closing connection:", err);
+          }
+      }
+  }
+});
+
 
 
 
