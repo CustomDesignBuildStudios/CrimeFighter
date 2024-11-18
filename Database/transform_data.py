@@ -41,7 +41,7 @@ weaponTypes = {}
 
 
 # Open CSV file and SQL file for writing
-with open(inputfile, mode='r', newline='', encoding='utf-8') as csvfile, open(outputfile, mode='w', encoding='utf-8') as sqlfile:
+with open(inputfile, mode='r', newline='', encoding='utf-8-sig') as csvfile, open(outputfile, mode='w', encoding='utf-8') as sqlfile:
     
     '''The DictReader is a function that reads the header, and seperates the values
         in the csv file for each column into that attributes name. And the attribute name 
