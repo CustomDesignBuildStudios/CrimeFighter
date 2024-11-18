@@ -936,6 +936,57 @@ ORDER BY
 
 
 
+app.post('/advance/crime-timeofday', async (req, res) => {
+  let connection;
+  try {
+      // Establish connection
+      connection = await oracledb.getConnection({
+          user: mysqlUser,
+          password: mysqlPassword,
+          connectString: "oracle.cise.ufl.edu/orcl"
+      });
+
+
+      const hour = parseInt(req.body['hour'] ?? 12);
+
+
+      const result = await connection.execute(
+          `
+SELECT
+    EXTRACT(HOUR FROM DateTimeOcc) AS Hour,
+    CrmCdDesc AS CrimeType,
+    COUNT(*) AS CrimeCount
+FROM
+    "ANDREW.BALLARD".cf_crime
+WHERE
+    EXTRACT(HOUR FROM DateTimeOcc) = ${hour}
+GROUP BY
+    EXTRACT(HOUR FROM DateTimeOcc),
+    CrmCdDesc
+ORDER BY
+    Hour,
+    CrimeCount DESC
+          `
+      );
+
+      res.json(result.rows);
+
+
+
+  } catch (error) {
+      console.error("Error executing query:", error);
+      res.status(500).send("Error executing query");
+  } finally {
+      if (connection) {
+          try {
+              await connection.close();
+          } catch (err) {
+              console.error("Error closing connection:", err);
+          }
+      }
+  }
+});
+
 
 
 
