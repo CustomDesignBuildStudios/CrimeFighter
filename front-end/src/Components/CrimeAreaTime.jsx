@@ -40,17 +40,21 @@ function CrimeAreaTimeQuery() {
   useEffect(() => {
     const fetchCrimeData = async () => {
       try {
-        const response = await axios.post("http://localhost:8080/advance/crime-area-time", {
-          area:area,year:year
-        });
+        const response = await axios.post(
+          "http://localhost:8080/advance/crime-area-time",
+          {
+            area: area,
+            year: year,
+          }
+        );
 
         // Assuming the response returns data in the format of { Month, CrimeCount }
 
-        const formattedData = response.data.map(item => ({
-          label: item.MONTH,  // The month as label
-          y: item.CRIMECOUNT  // The crime count as the data point
+        const formattedData = response.data.map((item) => ({
+          label: item.MONTH, // The month as label
+          y: item.CRIMECOUNT, // The crime count as the data point
         }));
-        
+
         setCrimeData(formattedData);
 
         setCrimeData(formattedData);
@@ -64,9 +68,6 @@ function CrimeAreaTimeQuery() {
     }
   }, [area, year]);
 
-
-
-
   const handleAreaChange = (e) => setArea(e.target.value);
   const handleYearChange = (e) => setYear(e.target.value);
 
@@ -76,23 +77,23 @@ function CrimeAreaTimeQuery() {
     animationEnabled: true,
     exportEnabled: true,
     title: {
-      text: `Crime Count in ${areaTitle} (${year})`
+      text: `Crime Count in ${areaTitle} (${year})`,
     },
     axisX: {
       title: "Month",
-      interval: 1
+      interval: 1,
     },
     axisY: {
       title: "Crime Count",
-      includeZero: true
+      includeZero: true,
     },
     data: [
       {
         type: "column",
         name: "Crimes",
-        dataPoints: crimeData
-      }
-    ]
+        dataPoints: crimeData,
+      },
+    ],
   };
 
   return (
