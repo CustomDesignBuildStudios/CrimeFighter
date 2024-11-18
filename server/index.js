@@ -989,6 +989,58 @@ ORDER BY
 
 
 
+app.post('/advance/crime-area-time', async (req, res) => {
+  let connection;
+  try {
+      // Establish connection
+      connection = await oracledb.getConnection({
+          user: mysqlUser,
+          password: mysqlPassword,
+          connectString: "oracle.cise.ufl.edu/orcl"
+      });
+
+
+      const year = parseInt(req.body['year'] ?? 2020);
+      const area = req.body['area'] ?? '';
+
+
+      const result = await connection.execute(
+          `
+SELECT
+    TO_CHAR(DateTimeOcc, 'YYYY-MM') AS Month,
+    COUNT(*) AS CrimeCount
+FROM
+    "ANDREW.BALLARD".cf_crime
+WHERE
+    AreaName = '${area}'
+    AND
+    EXTRACT(YEAR FROM DateTimeOcc) = ${year}
+GROUP BY
+    TO_CHAR(DateTimeOcc, 'YYYY-MM')
+ORDER BY
+    Month
+          `
+      );
+
+      res.json(result.rows);
+
+
+
+  } catch (error) {
+      console.error("Error executing query:", error);
+      res.status(500).send("Error executing query");
+  } finally {
+      if (connection) {
+          try {
+              await connection.close();
+          } catch (err) {
+              console.error("Error closing connection:", err);
+          }
+      }
+  }
+});
+
+
 
 app.listen(8080, () => {
   console.log("server listening on port 8080");
