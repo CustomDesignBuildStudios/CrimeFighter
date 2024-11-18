@@ -1,10 +1,10 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEyeSlash, faEye } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
-import axios from 'axios';
+import axios from "axios";
 import { useState } from "react";
 import { InputField } from "../Components/InputField";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthContext";
 
 function Register() {
@@ -17,10 +17,24 @@ function Register() {
   const [password, setPassword] = useState("");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState({});
 
   async function handleLogin(event) {
     event.preventDefault();
-    if (!email || !password || !firstName || !lastName) return;
+    const newErrors = {};
+
+    // Validate fields
+    if (!firstName) newErrors.firstName = "First Name is required";
+    if (!lastName) newErrors.lastName = "Last Name is required";
+    if (!email) newErrors.email = "Email is required";
+    if (!password) newErrors.password = "Password is required";
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors); // Set errors if validation fails
+      return;
+    } else {
+      setErrors({});
+    }
     try {
       setIsLoading(true);
 
@@ -39,7 +53,9 @@ function Register() {
             login(results.data); // Set user data in context
             navigate("/myprofile");
           } else {
-            alert("Error: Either the email or password is incorrect/not a user.");
+            alert(
+              "Error: Either the email or password is incorrect/not a user."
+            );
           }
         });
     } catch (error) {
@@ -64,13 +80,16 @@ function Register() {
             First Name
           </label>
           <InputField
-          id="firstName"
-          labelName="First Name"
-          type="text"
-          placeholder="First Name"
-          value={firstName}
-          onChange={(e) => setFirstName(e.target.value)}
-        />
+            id="firstName"
+            labelName="First Name"
+            type="text"
+            placeholder="First Name"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+          />
+          {errors.firstName && (
+            <p className="text-xs text-red-500">{errors.firstName}</p>
+          )}
         </div>
 
         <div className="mb-4">
@@ -81,13 +100,16 @@ function Register() {
             Last Name
           </label>
           <InputField
-          id="lastName"
-          labelName="Last Name"
-          type="text"
-          placeholder="Last Name"
-          value={lastName}
-          onChange={(e) => setLastName(e.target.value)}
-        />
+            id="lastName"
+            labelName="Last Name"
+            type="text"
+            placeholder="Last Name"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+          />
+          {errors.lastName && (
+            <p className="text-xs text-red-500">{errors.lastName}</p>
+          )}
         </div>
 
         <div className="mb-4">
@@ -98,15 +120,18 @@ function Register() {
             Email
           </label>
           <InputField
-          id="email"
-          labelName="Email Address"
-          type="email"
-          placeholder="Your-email@example.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+            id="email"
+            labelName="Email Address"
+            type="email"
+            placeholder="Your-email@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          {errors.email && (
+            <p className="text-xs text-red-500">{errors.email}</p>
+          )}
         </div>
-   
+
         <div className="mb-4">
           <label
             className="block mb-2 text-sm font-bold text-gray-700"
@@ -128,8 +153,10 @@ function Register() {
               onClick={() => setIsPasswordVisible(!isPasswordVisible)}
             />
           </InputField>
+          {errors.password && (
+            <p className="text-xs text-red-500">{errors.password}</p>
+          )}
         </div>
-
 
         <div className="flex items-center justify-between">
           <button
@@ -151,12 +178,6 @@ function Register() {
             </Link>
           </div>
         </div>
-
-
-
-
-
-
       </form>
     </div>
   );
