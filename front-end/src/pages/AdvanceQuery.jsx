@@ -20,7 +20,7 @@ function AdvanceQueryPage() {
           }`}
           onClick={() => setActiveTab('gender')}
         >
-          Gender Time Query
+          Crime Trends by Gender
         </button>
         <button
           className={`px-4 py-2 font-medium ${
@@ -30,7 +30,7 @@ function AdvanceQueryPage() {
           }`}
           onClick={() => setActiveTab('area')}
         >
-          Area Time Query
+          Severe Crime Trends by Area
         </button>
         <button
           className={`px-4 py-2 font-medium ${
@@ -40,7 +40,7 @@ function AdvanceQueryPage() {
           }`}
           onClick={() => setActiveTab('crime-month')}
         >
-          Crime Month Query
+          Crime Trends by Month
         </button>
         <button
           className={`px-4 py-2 font-medium ${
@@ -50,7 +50,7 @@ function AdvanceQueryPage() {
           }`}
           onClick={() => setActiveTab('crime-tod')}
         >
-          Crime Time Of Day Query
+          Crime Trends by Time of Day
         </button>
         <button
           className={`px-4 py-2 font-medium ${
@@ -60,7 +60,7 @@ function AdvanceQueryPage() {
           }`}
           onClick={() => setActiveTab('crime-area-time')}
         >
-          Crime Area Time Query
+          All Crime Trends by Area
         </button>
       </div>
 

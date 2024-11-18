@@ -105,6 +105,15 @@ const options = {
         </select>
       </div>
       <CanvasJSReact.CanvasJSChart options={options} />
+      <p>
+        This graph has the option of allowing the user to select a year, and also click on the locations at the bottom of the chart.
+        Clicking the location will remove the line from the graph and re-clicking it will put it back onto the graph.
+        The most obvious trend is that the area of 77th street has the highest amounts of severe crimes across nearly all years
+        and all months. Some months have the Central area as the area with the highest amount of severe crimes, the Southeast
+        area is also the highest at some points throughout the years. The area with the least amount of severe crimes is
+        the West LA area. Users of our app should be especially aware when visiting these areas of Los Angeles since they
+        have been shown to have higher numbers of more violent and severe crimes.
+      </p>
     </div>
   );
 }
