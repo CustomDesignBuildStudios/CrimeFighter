@@ -10,17 +10,19 @@ import { GoogleMap, LoadScript, Marker, LoadScriptNext } from '@react-google-map
 function AreaTimeQuery() {
   // Your data
   const [chartData, setChartData] = useState([]);
+  const [year, setYear] = useState(2021); // Default year
 
-  useEffect(() => {
+  const fetchData = (selectedYear) => {
     // Fetch data from your API endpoint
-    axios.post('http://localhost:8080/advance/area-crime')  // Replace with your actual API endpoint
+    axios.post('http://localhost:8080/advance/area-crime',{year:selectedYear })  // Replace with your actual API endpoint
     .then(response => {
       const data = response.data; // Assuming response.data contains the dataset
 
       // Define all months in the year (assuming you're working with a specific year, e.g., 2020)
       const allMonths = [
-        "2020-01", "2020-02", "2020-03", "2020-04", "2020-05", "2020-06", 
-        "2020-07", "2020-08", "2020-09", "2020-10", "2020-11", "2020-12"
+        `${selectedYear}-01`, `${selectedYear}-02`, `${selectedYear}-03`, `${selectedYear}-04`,
+        `${selectedYear}-05`, `${selectedYear}-06`, `${selectedYear}-07`, `${selectedYear}-08`,
+        `${selectedYear}-09`, `${selectedYear}-10`, `${selectedYear}-11`, `${selectedYear}-12`
       ];
 
       // Get all unique areas
@@ -36,13 +38,14 @@ function AreaTimeQuery() {
         });
 
         return {
-          type: "bar",  // Stacked bar chart
+          type: "line",  // Stacked bar chart
           name: area,  // Name of the area
           showInLegend: true,
           dataPoints: allMonths.map((month, index) => ({
             label: month,
             y: crimeCounts[index]
-          }))
+          })),
+          visible: true // Default to visible
         };
       });
 
@@ -52,7 +55,10 @@ function AreaTimeQuery() {
     .catch(error => {
       console.error("Error fetching data:", error);
     });
-}, []);
+};
+useEffect(() => {
+  fetchData(year);
+}, [year]);
 
 // CanvasJS chart options
 const options = {
@@ -69,15 +75,39 @@ const options = {
     title: "Severe Crime Count",
     includeZero: true,  // Start y-axis from zero to make comparisons easier
   },
+  legend: {
+    cursor: "pointer", // Change cursor to pointer for clickable legend
+    itemclick: function (e) {
+      // Toggle visibility of the clicked series
+      e.dataSeries.visible = !(typeof e.dataSeries.visible === "undefined" || e.dataSeries.visible);
+      e.chart.render(); // Re-render the chart to apply the changes
+    }
+  },
   data: chartData
 };
 
-return (
-  <div>
-    <CanvasJSReact.CanvasJSChart options={options} />
-  </div>
-);
-};
+  // Handle year selection
+  const handleYearChange = (e) => {
+    setYear(parseInt(e.target.value, 10));
+  };
+
+  return (
+    <div>
+      <div style={{ marginBottom: '1rem' }}>
+        <label htmlFor="yearSelect">Select Year: </label>
+        <select id="yearSelect" value={year} onChange={handleYearChange}>
+          <option value={2020}>2020</option>
+          <option value={2021}>2021</option>
+          <option value={2022}>2022</option>
+          <option value={2023}>2023</option>
+          <option value={2024}>2024</option>
+          {/* Add more years as needed */}
+        </select>
+      </div>
+      <CanvasJSReact.CanvasJSChart options={options} />
+    </div>
+  );
+}
 
 export default AreaTimeQuery;
 

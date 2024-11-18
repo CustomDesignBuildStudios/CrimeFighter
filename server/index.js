@@ -48,7 +48,7 @@ app.post('/register', async (req, res) => {
             res.status(500).send("Missing parameters");
         }else{
             const result = await connection.execute(
-                `SELECT * FROM CF_Account WHERE email=:email`,
+                `SELECT * FROM "ANDREW.BALLARD".CF_Account WHERE email=:email`,
                 {
                     email: email
                 }
@@ -61,7 +61,7 @@ app.post('/register', async (req, res) => {
                 
 
                 const result = await connection.execute(
-                    `INSERT INTO CF_Account (AccountID, email, password,FirstName,LastName,DateCreated) VALUES (cf_accountInsert.NEXTVAL, :email, :password, :firstName, :lastName, SYSDATE)`,
+                    `INSERT INTO "ANDREW.BALLARD".CF_Account (AccountID, email, password,FirstName,LastName,DateCreated) VALUES (cf_accountInsert.NEXTVAL, :email, :password, :firstName, :lastName, SYSDATE)`,
                     {
                         password: password,
                         email: email,
@@ -115,7 +115,7 @@ app.post('/login', async (req, res) => {
             res.status(500).send("Error executing query");
         }else{
             const result = await connection.execute(
-                `SELECT * FROM CF_Account WHERE password=:password AND email=:email`,
+                `SELECT * FROM "ANDREW.BALLARD".CF_Account WHERE password=:password AND email=:email`,
                 {
                     password: password,
                     email: email
@@ -157,7 +157,7 @@ app.get('/', async (req, res) => {
 
         // Execute the SELECT statement
         const result = await connection.execute(
-          `INSERT INTO CF_Account (AccountID, email, password,FirstName,LastName,DateCreated) VALUES (cf_accountInsert.NEXTVAL, :email, :password, :firstName, :lastName, SYSDATE)`,
+          `INSERT INTO "ANDREW.BALLARD".CF_Account (AccountID, email, password,FirstName,LastName,DateCreated) VALUES (cf_accountInsert.NEXTVAL, :email, :password, :firstName, :lastName, SYSDATE)`,
           {
             password: password,
             email: email,
@@ -205,7 +205,7 @@ app.post("/login", async (req, res) => {
       res.status(500).send("Error executing query");
     } else {
       const result = await connection.execute(
-        `SELECT * FROM CF_Account WHERE password=:password AND email=:email`,
+        `SELECT * FROM "ANDREW.BALLARD".CF_Account WHERE password=:password AND email=:email`,
         {
           password: password,
           email: email,
@@ -262,7 +262,7 @@ app.post("/profile", async (req, res) => {
       res.status(500).send("Error executing query");
     } else {
       const result = await connection.execute(
-        `UPDATE cf_account SET FirstName=:FirstName, LastName=:LastName, Phone=:Phone, Bio=:Bio WHERE AccountID=:AccountID`,
+        `UPDATE "ANDREW.BALLARD".cf_account SET FirstName=:FirstName, LastName=:LastName, Phone=:Phone, Bio=:Bio WHERE AccountID=:AccountID`,
         {
           FirstName: FirstName,
           LastName: LastName,
@@ -319,7 +319,7 @@ app.post("/get-comments", async (req, res) => {
       res.status(500).send("Error executing query");
     } else {
       const result = await connection.execute(
-        `SELECT cf_public_comment.UserComment,cf_account.FirstName FROM cf_public_comment JOIN cf_account ON cf_account.AccountID=cf_public_comment.AccountID WHERE CrimeID=:CrimeID ORDER BY DatePosted DESC`,
+        `SELECT "ANDREW.BALLARD".cf_public_comment.UserComment,"ANDREW.BALLARD".cf_account.FirstName FROM "ANDREW.BALLARD".cf_public_comment JOIN "ANDREW.BALLARD".cf_account ON cf_account.AccountID=cf_public_comment.AccountID WHERE CrimeID=:CrimeID ORDER BY DatePosted DESC`,
         {
           CrimeID: CrimeID,
         }
@@ -371,9 +371,9 @@ app.post("/add-comment", async (req, res) => {
       if(AccountID == ""){
         acc = `AccountID=:AccountID`
       }
-      console.log(`INSERT INTO cf_public_comment (CommentID, CrimeID, AccountID, UserComment,DatePosted) VALUES (cf_commentInsert.NEXTVAL,:CrimeID,:AccountID,:UserComment,SYSTIMESTAMP)`)
+      console.log(`INSERT INTO "ANDREW.BALLARD".cf_public_comment (CommentID, CrimeID, AccountID, UserComment,DatePosted) VALUES (cf_commentInsert.NEXTVAL,:CrimeID,:AccountID,:UserComment,SYSTIMESTAMP)`)
       const result = await connection.execute(
-        `INSERT INTO cf_public_comment (CommentID, CrimeID, AccountID, UserComment,DatePosted) VALUES (cf_commentInsert.NEXTVAL,:CrimeID,:AccountID,:UserComment,SYSTIMESTAMP)`,
+        `INSERT INTO "ANDREW.BALLARD".cf_public_comment (CommentID, CrimeID, AccountID, UserComment,DatePosted) VALUES (cf_commentInsert.NEXTVAL,:CrimeID,:AccountID,:UserComment,SYSTIMESTAMP)`,
         {
           AccountID: AccountID,
           CrimeID: CrimeID,
@@ -436,7 +436,7 @@ app.post("/add-report", async (req, res) => {
       const columns = [...Object.keys(data), 'DateRptd', 'DateTimeOcc'].join(', ');
       const placeholders = [...Object.keys(data).map(key => `:${key}`), 'SYSDATE', 'CURRENT_TIMESTAMP'].join(', ');
       
-      const sql = `INSERT INTO cf_crime (${columns}) VALUES (${placeholders})`;
+      const sql = `INSERT INTO "ANDREW.BALLARD".cf_crime (${columns}) VALUES (${placeholders})`;
       console.log(data);
       console.log(sql);
       const result = await connection.execute(sql, data);
@@ -623,7 +623,7 @@ app.post('/general-data', async (req, res) => {
 
         if(type=="MAP"){
             const result = await connection.execute(
-                `SELECT Area, COUNT(*) AS CrimeCount FROM CF_Crime `+whereStatement+ ` GROUP BY Area`
+                `SELECT Area, COUNT(*) AS CrimeCount FROM "ANDREW.BALLARD".CF_Crime `+whereStatement+ ` GROUP BY Area`
             );
     
             res.json({type:type,results:result.rows});
@@ -714,10 +714,10 @@ app.post('/general-data', async (req, res) => {
                 orderAndLimitStatement = `ORDER BY ${orderBy} ${orderByDir} OFFSET ${(page*amount)} ROWS FETCH NEXT ${amount} ROWS ONLY`
             }
 
-            console.log(`SELECT `+selectVars+` FROM CF_Crime `+whereStatement+ ` `+groupStatement+` `+orderAndLimitStatement)
+            console.log(`SELECT `+selectVars+` FROM "ANDREW.BALLARD".CF_Crime `+whereStatement+ ` `+groupStatement+` `+orderAndLimitStatement)
     
             const result = await connection.execute(
-                `SELECT `+selectVars+` FROM CF_Crime `+whereStatement+ ` `+groupStatement+` `+orderAndLimitStatement
+                `SELECT `+selectVars+` FROM "ANDREW.BALLARD".CF_Crime `+whereStatement+ ` `+groupStatement+` `+orderAndLimitStatement
             );
     
             // Send the query result rows as a response
@@ -760,6 +760,9 @@ app.post('/advance/area-crime', async (req, res) => {
             connectString: "oracle.cise.ufl.edu/orcl"
         });
 
+        const year = parseInt(req.body['year'] ?? 2020);
+
+
         const result = await connection.execute(
             `
             SELECT
@@ -767,10 +770,10 @@ app.post('/advance/area-crime', async (req, res) => {
                 AreaName,
                 COUNT(*) AS SevereCrimeCount
             FROM
-                cf_crime
+                "ANDREW.BALLARD".cf_crime
             WHERE
                 CrmCd IN ('230', '821', '121', '113', '435', '822', '921', '865', '943', '812', '235', '840', '860', '110', '814', '648')
-                AND EXTRACT(YEAR FROM DateTimeOcc) = 2020
+                AND EXTRACT(YEAR FROM DateTimeOcc) = ${year}
             GROUP BY TO_CHAR(DateTimeOcc, 'YYYY-MM'),AreaName
             ORDER BY Month, SevereCrimeCount DESC
             `
@@ -823,7 +826,7 @@ SELECT
     END AS AgeGroup,
     COUNT(*) AS VictimCount
 FROM
-    cf_crime
+    "ANDREW.BALLARD".cf_crime
 WHERE
     VictAge IS NOT NULL
     AND VictSex IS NOT NULL
