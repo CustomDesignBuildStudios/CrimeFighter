@@ -30,8 +30,12 @@ function GenderTimeQuery() {
         );
 
         const unknownData = months.map(month =>
-          data.filter(item => item.MONTH === month && item.SEX === 'U').reduce((acc, curr) => acc + curr.VICTIMCOUNT, 0)
+          data.filter(item => item.MONTH === month && item.SEX === 'X').reduce((acc, curr) => acc + curr.VICTIMCOUNT, 0)
         );
+
+        // const noneData = months.map(month =>
+        //   data.filter(item => item.MONTH === month && item.SEX === 'H').reduce((acc, curr) => acc + curr.VICTIMCOUNT, 0)
+        // );
 
         // Update the chart data state
         setChartData([
@@ -52,7 +56,13 @@ function GenderTimeQuery() {
             name: "Unknown Victims",
             showInLegend: true,
             dataPoints: months.map((month, index) => ({ label: month, y: unknownData[index] }))
-          }
+          },
+          // {
+          //   type: "line",
+          //   name: "None Victims",
+          //   showInLegend: true,
+          //   dataPoints: months.map((month, index) => ({ label: month, y: noneData[index] }))
+          // }
         ]);
       })
       .catch(error => {
