@@ -15,16 +15,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = (userData) => {
-    setUser({
-      accountId: userData.ACCOUNTID,
-      email: userData.EMAIL,
-      firstName: userData.FIRSTNAME,
-      lastName: userData.LASTNAME,
-      bio: userData.BIO,
-      dateCreated: userData.DATECREATED,
-      phone: userData.PHONE,
-      homeAddress: userData.HOMEADDRESS,
-    });
+    setUser(userData);
     console.log("Hello" + userData);
     localStorage.setItem("user", JSON.stringify(userData));
   };

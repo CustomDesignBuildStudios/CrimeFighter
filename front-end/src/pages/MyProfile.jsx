@@ -7,16 +7,16 @@ function MyProfile() {
  
 
   const [firstName, setFirstName] = useState(
-    user?.firstName || ""
+    user?.FIRSTNAME || ""
   );
   const [lastName, setLastName] = useState(
-    user?.lastName || ""
+    user?.LASTNAME || ""
   );
   const [phone, setPhone] = useState(
-    user?.phone || ""
+    user?.PHONE || ""
   );
   const [biography, setBiography] = useState(
-    user?.bio || ""
+    user?.BIO || ""
   );
 
   // Simulated user data fetch (replace with your data fetching logic)
@@ -33,10 +33,10 @@ function MyProfile() {
     try {
       
       let data = user;
-      data['firstName'] = firstName;
-      data['lastName'] = lastName;
-      data['phone'] = phone;
-      data['bio'] = biography;
+      data['FIRSTNAME'] = firstName;
+      data['LASTNAME'] = lastName;
+      data['PHONE'] = phone;
+      data['BIO'] = biography;
 
       const response = await axios.post("http://localhost:8080/profile", {user:user});
       console.log(response.data);
@@ -63,19 +63,19 @@ function MyProfile() {
         <div className="w-1/3 p-4 mb-6 bg-white rounded shadow-md">
         <h2 className="text-xl font-semibold">User Information</h2>
         <p className="mt-2 text-gray-700">
-          <strong>First Name:</strong> {user['firstName']}
+          <strong>First Name:</strong> {user['FIRSTNAME']}
         </p>
         <p className="mt-2 text-gray-700">
-          <strong>Last Name:</strong> {user['lastName']}
+          <strong>Last Name:</strong> {user['LASTNAME']}
         </p>
         <p className="mt-2 text-gray-700">
-          <strong>Phone Number:</strong> {user['phone'] || "N/A"}
+          <strong>Phone Number:</strong> {user['PHONE'] || "N/A"}
         </p>
         {/* <p className="mt-2 text-gray-700">
           <strong>Email:</strong> {user['email']}
         </p> */}
         <p className="mt-2 text-gray-700">
-          <strong>Biography:</strong> {user['bio'] || "N/A"}
+          <strong>Biography:</strong> {user['BIO'] || "N/A"}
         </p>
       </div>
       )}

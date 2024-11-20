@@ -267,11 +267,11 @@ app.post("/profile", async (req, res) => {
     });
 
     const user = req.body["user"] ?? {};
-    const FirstName = user['firstName'] ?? "";
-    const LastName = user['lastName'] ?? "";
-    const Phone = user['phone'] ?? "";
-    const Bio = user['bio'] ?? "";
-    const AccountID = user['accountId'] ?? -1;
+    const FirstName = user['FIRSTNAME'] ?? "";
+    const LastName = user['LASTNAME'] ?? "";
+    const Phone = user['PHONE'] ?? "";
+    const Bio = user['BIO'] ?? "";
+    const AccountID = user['ACCOUNTID'] ?? -1;
 
 
     console.log(user);
@@ -381,7 +381,7 @@ app.post("/add-comment", async (req, res) => {
 
 
     const CrimeID = req.body['CrimeID'] ?? "";
-    const AccountID = req.body['AccountID'] ?? "";
+    const AccountID = req.body['ACCOUNTID'] ?? "";
     const UserComment = req.body['UserComment'] ?? "";
 
 
@@ -613,7 +613,7 @@ app.post('/general-data', async (req, res) => {
         if(age.length > 0){whereStatement += transformAgeArrayIntoSQL(age);}
         const weapon = req.body['weapon'] ?? [];
         if(weapon.length > 0){whereStatement += transformWeaponArrayIntoSQL(weapon);}
-        if(user != null){whereStatement += ` AccountID = ${user['accountId']} AND`}
+        if(user != null){whereStatement += ` AccountID = ${user['ACCOUNTID']} AND`}
 
 
         if(mapBounds != null && type=="MAP"){

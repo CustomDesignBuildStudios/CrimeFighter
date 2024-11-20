@@ -90,7 +90,7 @@ const CrimeModal = ({ isOpen, onClose, data, onSave, onDelete, sexData, descentD
         {isEditMode || formData["DR_NO"] == "NEW REPORT" ? (
           // Edit mode with input fields in a 3-column layout
           <form className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            {Object.keys(formData).map((key) => (
+            {Object.keys(formData).filter((key) => allowedColumns.includes(key)).map((key) => (
               <div key={key} className="flex flex-col">
                 <label className="font-semibold">{key}:</label>
                 {key === "DATETIMEOCC" ? (
@@ -310,7 +310,7 @@ const CrimeModal = ({ isOpen, onClose, data, onSave, onDelete, sexData, descentD
             </div>
 
             <Comments CrimeID={data["DR_NO"]} />
-            {canEdit && user["accountId"] == data["ACCOUNTID"] ? (
+            {canEdit && user["ACCOUNTID"] == data["ACCOUNTID"] ? (
               <div className="flex justify-end gap-4 mt-4 col-span-full">
                 {/* <button
                   onClick={toggleEditMode}

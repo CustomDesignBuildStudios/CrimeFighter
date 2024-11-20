@@ -36,7 +36,7 @@ const Comments = ({ CrimeID }) => {
     try {
         console.log(user)
       // Replace `/api/comments` with your actual API endpoint
-      const response = await axios.post('http://localhost:8080/add-comment', { CrimeID:CrimeID,AccountID:user['ACCOUNTID'],UserComment:commentText });
+      const response = await axios.post('http://localhost:8080/add-comment', { CrimeID:CrimeID,ACCOUNTID:user['ACCOUNTID'],UserComment:commentText });
         if(response.data === true){
             getComments();
         }else{
