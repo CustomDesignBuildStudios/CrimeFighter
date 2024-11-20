@@ -78,8 +78,8 @@ function CrimeMonthQuery() {
   };
 
   return (
-      <div className="flex flex-col items-center min-h-screen p-6 bg-gray-100">
-        <h1 className="mb-4 text-2xl font-bold">Monthly Crime Trends by Type</h1>
+      <div>
+        <h2>Monthly Crime Trends by Type</h2>
         <div className="flex flex-col items-center mb-4 sm:flex-row">
           <label className="mr-2">Select Month:</label>
           <DatePicker
@@ -93,13 +93,9 @@ function CrimeMonthQuery() {
         {isLoading ? (
             <Spinner/>
         ) : chartData.length > 0 ? (
-            <div className="w-full h-[800px]">
               <CanvasJSChart
-                  height="700px"
                   options={options}
-                  className="w-full max-w-4xl h-[800px]"
               />
-            </div>
         ) : (
             <p>No data available for the selected month.</p>
         )}
