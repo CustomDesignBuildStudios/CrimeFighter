@@ -78,32 +78,44 @@ function CrimeMonthQuery() {
   };
 
   return (
-    <div className="flex flex-col items-center min-h-screen p-6 bg-gray-100">
-      <h1 className="mb-4 text-2xl font-bold">Monthly Crime Trends by Type</h1>
-      <div className="flex flex-col items-center mb-4 sm:flex-row">
-        <label className="mr-2">Select Month:</label>
-        <DatePicker
-          selected={selectedDate}
-          onChange={(date) => setSelectedDate(date)}
-          dateFormat="yyyy-MM"
-          showMonthYearPicker
-          className="p-2 border rounded-md"
-        />
-      </div>
-      {isLoading ? (
-        <Spinner />
-      ) : chartData.length > 0 ? (
-        <div className="w-full h-[800px]">
-          <CanvasJSChart
-            height="700px"
-            options={options}
-            className="w-full max-w-4xl h-[800px]"
+      <div className="flex flex-col items-center min-h-screen p-6 bg-gray-100">
+        <h1 className="mb-4 text-2xl font-bold">Monthly Crime Trends by Type</h1>
+        <div className="flex flex-col items-center mb-4 sm:flex-row">
+          <label className="mr-2">Select Month:</label>
+          <DatePicker
+              selected={selectedDate}
+              onChange={(date) => setSelectedDate(date)}
+              dateFormat="yyyy-MM"
+              showMonthYearPicker
+              className="p-2 border rounded-md"
           />
         </div>
-      ) : (
-        <p>No data available for the selected month.</p>
-      )}
-    </div>
+        {isLoading ? (
+            <Spinner/>
+        ) : chartData.length > 0 ? (
+            <div className="w-full h-[800px]">
+              <CanvasJSChart
+                  height="700px"
+                  options={options}
+                  className="w-full max-w-4xl h-[800px]"
+              />
+            </div>
+        ) : (
+            <p>No data available for the selected month.</p>
+        )}
+        <p>
+          These charts show the number of the different types of crimes that occur in a selected month. The exact number
+          of each crime is shown when the cursor hovers over a bar on the graph. For the year 2020, the most popular crime
+          in every month except January was "Vehicle - Stolen". The top 2 crimes throughout the year 2021 were "Vehicle -
+          Stolen" and "Battery - Simple Assault". In 2022, the top 2 crimes in each month were "Vehicle - Stolen" and "Theft of
+          Identity". In 2023, the top two crimes in most of the months were "Vehicle - Stolen" and "Battery - Simple Assault". The
+          beginning of 2024 continues the trends from 2023 until April, where the different types of crimes by month start to deviate
+          from the trends, "Vehicle - Stolen" is at the top of the graph for most of the months shown. This should tell users of our app
+          that at any time of the year, vehicles being stolen happens most often. To say what month of the year has the most crimes would be
+          difficult, the amount of crimes that occur are pretty consistent throughout the year. Although, for some of the years,
+          December seems to have a higher amount of crimes than other months.
+        </p>
+      </div>
   );
 }
 
