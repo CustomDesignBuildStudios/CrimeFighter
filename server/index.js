@@ -613,7 +613,7 @@ app.post('/general-data', async (req, res) => {
         if(age.length > 0){whereStatement += transformAgeArrayIntoSQL(age);}
         const weapon = req.body['weapon'] ?? [];
         if(weapon.length > 0){whereStatement += transformWeaponArrayIntoSQL(weapon);}
-        if(user != null){whereStatement += ` AccountID = ${user['ACCOUNTID']} AND`}
+        if(user != null){whereStatement += ` AccountID = ${user['accountId']} AND`}
 
 
         if(mapBounds != null && type=="MAP"){

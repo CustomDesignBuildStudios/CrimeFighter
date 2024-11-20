@@ -22,5 +22,9 @@
 -- Juv Other
 -- Juv Arrest
 -- UNK
--- SELECT * FROM "ANDREW.BALLARD".CF_Crime WHERE VictDescent='-';
 -- SELECT * FROM "ANDREW.BALLARD".CF_Crime WHERE VictDescent IS NULL;
+-- SELECT * FROM "ANDREW.BALLARD".CF_Crime WHERE VictDescent IS NULL;
+
+-- UPDATE "ANDREW.BALLARD".CF_Crime
+-- SET VictDescent = 'X'
+-- WHERE VictDescent IS NULL;

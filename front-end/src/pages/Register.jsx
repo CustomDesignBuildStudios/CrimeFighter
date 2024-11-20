@@ -50,7 +50,7 @@ function Register() {
             console.log("Successfully logged in", results.data);
             localStorage.setItem("user", JSON.stringify(results.data));
 
-            login(results.data); // Set user data in context
+            login(JSON.parse(JSON.stringify(results.data))); // Set user data in context
             navigate("/myprofile");
           } else {
             alert(
