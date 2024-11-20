@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import CanvasJSReact from "@canvasjs/react-charts";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
+import Spinner from "./Spinner";
 
 const CanvasJSChart = CanvasJSReact.CanvasJSChart;
 const areaData = [
@@ -12,14 +13,14 @@ const areaData = [
   "Harbor",
   "Hollywood",
   "Wilshire",
-  "West Los Angeles",
+  "West LA",
   "Van Nuys",
   "West Valley",
   "Northeast",
   "77th Street",
   "Newton",
   "Pacific",
-  "Narcotics",
+  "N Hollywood",
   "Foothill",
   "Devonshire",
   "Southeast",
@@ -31,11 +32,6 @@ function CrimeAreaTimeQuery() {
   const [crimeData, setCrimeData] = useState([]);
   const [area, setArea] = useState("Central"); // State for selected area
   const [year, setYear] = useState(2020); // State for selected year
-
-
-
-
-
 
   useEffect(() => {
     const fetchCrimeData = async () => {
@@ -127,9 +123,20 @@ function CrimeAreaTimeQuery() {
         {crimeData.length > 0 ? (
           <CanvasJSChart options={options} />
         ) : (
-          <p>Loading data...</p>
+          <Spinner />
         )}
       </div>
+      <p>
+        This graph allows users to select an area of Los Angeles and the year.
+        The trends that are shown with these graphs shows that in each area and
+        each year, the amount of crimes that occur is generally the same.
+        Despite the lack of a clear graphical trend, users of our app should
+        recognize this as a reason to stay vigilant at any time of the year. A
+        trend that could be gotten from these graphs, is the fact that the areas
+        of Foothill, Mission, and West LA typically have lower numbers of crime
+        whereas Central and 77th Street have the highest number of crimes
+        throughout the years.
+      </p>
     </div>
   );
 }
