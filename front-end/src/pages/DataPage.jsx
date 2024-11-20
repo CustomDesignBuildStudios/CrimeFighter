@@ -1,18 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef  } from "react";
 import axios from "axios";
 import CanvasJSReact from "@canvasjs/react-charts";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import './dataPage.css';  // Import the CSS file
+
 import {
   GoogleMap,
   LoadScript,
   Marker,
+  MarkerF,
   LoadScriptNext,
 } from "@react-google-maps/api";
 import CrimeModal from "../Components/CrimeModal";
 import { useLocation } from "react-router-dom";
-import { MarkerF } from "@react-google-maps/api";
 import { useAuth } from "../AuthContext.jsx";
+import debounce from "lodash.debounce";
 
 var CanvasJS = CanvasJSReact.CanvasJS;
 var CanvasJSChart = CanvasJSReact.CanvasJSChart;
@@ -44,6 +47,23 @@ function DataPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCrime, setSelectedCrime] = useState(null);
 
+
+
+
+  // const mapBoundsTemp = useRef(null);
+
+
+  // const onBoundsChanged = debounce((map) => {
+  //   const bounds = map.getBounds();
+  //   const currentZoom = map.getZoom(); // Get the current zoom level
+  //   mapBoundsTemp.current = {bounds:bounds,currentZoom:currentZoom};
+  //   LoadData();
+
+  // }, 500);
+
+
+
+
   const openModal = (crime) => {
     setSelectedCrime(crime);
     setIsModalOpen(true);
@@ -52,20 +72,20 @@ function DataPage() {
     setSelectedCrime({
       DR_NO: "NEW REPORT",
       // "DATETIMEOCC": "",
-      AREA: "",
-      AREANAME: "",
+      AREA: "01",
+      AREANAME: "Central",
       CRMCD: "946",
       CRMCDDESC: "OTHER MISCELLANEOUS CRIME",
-      VICTAGE: 0,
-      VICTSEX: "",
-      VICTDESCENT: "",
+      VICTAGE: "0",
+      VICTSEX: "U",
+      VICTDESCENT: "U",
       PREMISCD: 710,
       PREMISDESC: "OTHER PREMISE",
       WEAPONUSEDCD: "500",
       WEAPONDESC: "UNKNOWN WEAPON/OTHER WEAPON",
       STATUS: "IC",
       STATUSDESC: "Invest Cont",
-      LOC: "",
+      LOC: " ",
       LAT: 34.0677,
       LON: -118.552,
     });
@@ -88,9 +108,7 @@ function DataPage() {
     // });
   };
 
-  useEffect(() => {
-    console.log(listData);
-  }, [listData]);
+ 
 
   useEffect(() => {
     LoadData();
@@ -214,6 +232,9 @@ function DataPage() {
   };
 
   //////////////////////////////Options sidebar
+
+
+
   const [chartLabel, setChartLabel] = useState("{label} - {y}%");
   const [startOccurredDate, setStartOccurredDate] = useState(null);
   const [endOccurredDate, setEndOccurredDate] = useState(null);
@@ -286,10 +307,6 @@ function DataPage() {
     height: "80vh",
   };
 
-  const center = {
-    lat: 34.052235, // Set your desired latitude
-    lng: -118.243683, // Set your desired longitude
-  };
 
   //////////////////////////////Server data
 
@@ -419,6 +436,51 @@ function DataPage() {
     //   setChartData(Object.values(newData));
     // }
   };
+
+
+
+
+
+  function calculateDistance(lat1, lon1, lat2, lon2) {
+    const latDiff = lat2 - lat1;
+    const lonDiff = lon2 - lon1;
+    return Math.sqrt(latDiff * latDiff + lonDiff * lonDiff); // Euclidean distance
+}
+
+// Function to find the closest area to a given point
+function getClosestArea(position, areaData) {
+    let closestArea = null;
+    let closestDistance = Infinity;
+
+    // Iterate over the areaData to find the closest area
+    for (const key in areaData) {
+        const area = areaData[key];
+        const distance = calculateDistance(position.lat, position.lng, area.lat, area.lng);
+
+        // Update closest area if current one is closer
+        if (distance < closestDistance) {
+            closestDistance = distance;
+            closestArea = key;
+        }
+    }
+
+    return closestArea;
+}
+
+function getCenterFromBounds(bounds) {
+  const sw = bounds.getSouthWest(); // Southwest corner
+  const ne = bounds.getNorthEast(); // Northeast corner
+
+  const lat = (sw.lat() + ne.lat()) / 2; // Average latitude
+  const lng = (sw.lng() + ne.lng()) / 2; // Average longitude
+
+  return { lat, lng };
+}
+
+
+
+
+
   const LoadData = (page) => {
     console.log(urlData);
     const data = {
@@ -441,6 +503,12 @@ function DataPage() {
       premis: selectedLocationOptions,
       gender: selectedGenderOptions,
     };
+
+    // if(mapBoundsTemp && mapBoundsTemp['currentZoom'] > 15){
+    //   let area = getClosestArea(getCenterFromBounds(mapBoundsTemp['bounds']),areaData);
+    //   data['mapBounds'] = mapBoundsTemp['bounds'];
+    //   data['mapArea'] = area;
+    // }
 
     axios.post("http://localhost:8080/general-data", data).then((results) => {
       console.log(results.data);
@@ -796,25 +864,42 @@ function DataPage() {
             <div>
               <GoogleMap
                 mapContainerStyle={containerStyle}
-                center={center}
+                center={{lat: 34.052235, lng: -118.243683}}
                 zoom={10}
+                // onLoad={(map) => {
+                //   map.addListener("bounds_changed", () => onBoundsChanged(map));
+                // }}
               >
-                {mapData["data"].map((area) => (
-                  <MarkerF
-                    key={area.AREA}
+                {mapData["data"].map((item) => {
+                  if (item.CRIMECOUNT != null) {
+                  return (
+                    <MarkerF
+                    key={item.AREA}
                     position={{
-                      lat: areaData[area.AREA].lat,
-                      lng: areaData[area.AREA].lng,
+                      lat: areaData[item.AREA].lat,
+                      lng: areaData[item.AREA].lng,
                     }}
                     icon={{
                       url: "./circle.png", // Set the custom icon
                       scaledSize: new window.google.maps.Size(
-                        60 * (area.CRIMECOUNT / mapData["max"]),
-                        60 * (area.CRIMECOUNT / mapData["max"])
+                        60 * (item.CRIMECOUNT / mapData["max"]),
+                        60 * (item.CRIMECOUNT / mapData["max"])
                       ), // Resize the icon (optional)
                     }}
                   />
-                ))}
+                  )
+                }else{
+                  return (
+                    <MarkerF
+                    key={item.DR_NO}
+                    position={{
+                      lat: item.LAT,
+                      lng: item.LON,
+                    }}
+                  />
+                  )
+                }})}
+              
               </GoogleMap>
             </div>
           )}
@@ -847,6 +932,7 @@ function DataPage() {
           weaponData={basicWeaponTypesData}
           crimeData={basicCrimeTypesData}
           areaData={areaData}
+          statusData={statusData}
         />
       )}
     </div>

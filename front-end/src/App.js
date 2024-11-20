@@ -16,6 +16,7 @@ function App() {
   
   return (
     <LoadScript googleMapsApiKey="AIzaSyD5aQjrqz7O84b1lSmYp0vUdwGfPxOT3kk">
+
       <Router>
       <AuthProvider>
         <NavBar />
@@ -30,9 +31,8 @@ function App() {
         </Routes>
         </AuthProvider>
       </Router>
-  </LoadScript>
 
-
+      </LoadScript>
   );
 }
 

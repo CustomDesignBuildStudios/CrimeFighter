@@ -446,7 +446,7 @@ app.post("/add-report", async (req, res) => {
 
 
    
-    if (req.body['data']==null) {
+    if (req.body['data']==null || req.body['data']['ACCOUNTID']==null) {
       res.status(500).send("Error executing query");
     } else {
       let data = req.body['data'];
@@ -579,6 +579,8 @@ app.post('/general-data', async (req, res) => {
         const page = parseInt(req.body['page'] ?? 0);
         const type = req.body['type'] ?? "LIST";
         const groupBy = req.body['groupBy'] ?? "NONE";
+        const mapBounds = req.body['mapBounds'] ?? null;
+        const mapArea = req.body['mapArea'] ?? null;
         let user = req.body['user'] ?? null;
         const showUser = req.body['showUser'] ?? null;
         if(showUser != null && showUser['type'] != 'user' ){
@@ -611,7 +613,14 @@ app.post('/general-data', async (req, res) => {
         if(age.length > 0){whereStatement += transformAgeArrayIntoSQL(age);}
         const weapon = req.body['weapon'] ?? [];
         if(weapon.length > 0){whereStatement += transformWeaponArrayIntoSQL(weapon);}
-        if(user != null){whereStatement += ` AccountID = ${user['accountId']} AND`}
+        if(user != null){whereStatement += ` AccountID = ${user['ACCOUNTID']} AND`}
+
+
+        if(mapBounds != null && type=="MAP"){
+          whereStatement += ` Area = '${mapArea}' AND`;
+          whereStatement += ` Lat BETWEEN ${mapBounds['south']} AND ${mapBounds['north']} AND`;
+          whereStatement += ` Lon BETWEEN ${mapBounds['west']} AND ${mapBounds['east']} AND`;
+        }
 
         console.log(whereStatement);
         if (whereStatement.endsWith("AND")) {
@@ -623,32 +632,30 @@ app.post('/general-data', async (req, res) => {
         console.log(whereStatement);
 
 
-        if(type != "MAP"){
-            if(orderBy == "DATERPTD_DESC"){
-                orderBy = "DATERPTD";
-                orderByDir = "DESC";
-            }
-            else if(orderBy == "DATERPTD_ASC"){
-                orderBy = "DATERPTD";
-                orderByDir = "ASC";
-            }
-            else if(orderBy == "DATEOCC_DESC"){
-                orderBy = "DATETIMEOCC";
-                orderByDir = "DESC";
-            }
-            else{
-                orderBy = "DATETIMEOCC";
-                orderByDir = "ASC";
-            }
+        if(orderBy == "DATERPTD_DESC"){
+          orderBy = "DATERPTD";
+          orderByDir = "DESC";
+        }
+        else if(orderBy == "DATERPTD_ASC"){
+            orderBy = "DATERPTD";
+            orderByDir = "ASC";
+        }
+        else if(orderBy == "DATEOCC_DESC"){
+            orderBy = "DATETIMEOCC";
+            orderByDir = "DESC";
+        }
+        else{
+            orderBy = "DATETIMEOCC";
+            orderByDir = "ASC";
         }
 
 
-        if(type=="MAP"){
-            const result = await connection.execute(
-                `SELECT Area, COUNT(*) AS CrimeCount FROM "ANDREW.BALLARD".CF_Crime `+whereStatement+ ` GROUP BY Area`
-            );
-    
-            res.json({type:type,results:result.rows});
+        if(type=="MAP" && mapBounds == null){
+          const result = await connection.execute(
+            `SELECT Area, COUNT(*) AS CrimeCount FROM "ANDREW.BALLARD".CF_Crime `+whereStatement+ ` GROUP BY Area`
+          );
+
+          res.json({type:type,results:result.rows});
         }else{
             const validColumns = ['DR_NO','DATETIMEOCC','DATERPTD']; 
             if (!validColumns.includes(orderBy)) {
@@ -732,7 +739,7 @@ app.post('/general-data', async (req, res) => {
                 }
 
 
-            }else{
+            }else if(type!="MAP"){
                 orderAndLimitStatement = `ORDER BY ${orderBy} ${orderByDir} OFFSET ${(page*amount)} ROWS FETCH NEXT ${amount} ROWS ONLY`
             }
 

@@ -11,13 +11,15 @@ import 'react-datepicker/dist/react-datepicker.css';
 const allowedColumns = [
   'DR_NO',
   'DATERPTD',
-  'AREANAME',
-  'CRMCDDESC',
+  'AREA',
   'VICTAGE',
   'VICTSEX',
-  'LOC'
+  'CRMCD',
+  'WEAPONUSEDCD',
+  'LAT',
+  'LON'
 ];
-const CrimeModal = ({ isOpen, onClose, data, onSave, onDelete, sexData, descentData,areaData,crimeData,weaponData }) => {
+const CrimeModal = ({ isOpen, onClose, data, onSave, onDelete, sexData, descentData,areaData,crimeData,weaponData,statusData }) => {
   const [endDate, setEndOccurredDate] = useState(new Date());
 
   // Set startOccurredDate to one month ago from today
@@ -38,10 +40,11 @@ const CrimeModal = ({ isOpen, onClose, data, onSave, onDelete, sexData, descentD
   };
   useEffect(() => {
     let userID = ""
+    console.log(user)
     if(user){
-      userID = user['accountId']
+      userID = user['ACCOUNTID']
     }
-    setFormData((prev) => ({ ...prev, ['AccountID']: userID }));
+    setFormData((prev) => ({ ...prev, ['ACCOUNTID']: userID }));
     if(user){
       setCanEdit(true);
     }else{
@@ -87,7 +90,7 @@ const CrimeModal = ({ isOpen, onClose, data, onSave, onDelete, sexData, descentD
         {(isEditMode || formData['DR_NO'] == "NEW REPORT") ? (
           // Edit mode with input fields in a 3-column layout
           <form className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {Object.keys(formData).map((key) => (
+            {Object.keys(formData).filter((key) => allowedColumns.includes(key)).map((key) => (
               <div key={key} className="flex flex-col">
                 <label className="font-semibold">{key}:</label>
                 { 
@@ -295,7 +298,6 @@ const CrimeModal = ({ isOpen, onClose, data, onSave, onDelete, sexData, descentD
               </div>
             ))}
 <div className="flex flex-col col-span-3">
-
 <GoogleMap 
                 mapContainerStyle={containerStyle}
                 center={{lat:formData.LAT,lng:formData.LON}}
@@ -305,7 +307,6 @@ const CrimeModal = ({ isOpen, onClose, data, onSave, onDelete, sexData, descentD
                       position={{lat:formData.LAT,lng:formData.LON}}
                     />
               </GoogleMap>
-
 </div>
 
             <Comments CrimeID={data['DR_NO']} />
